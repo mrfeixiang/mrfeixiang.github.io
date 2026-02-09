@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - ElsaSnowMagic</title>
+    <meta name="description" content="Privacy Policy for ElsaSnowMagic - Apple Vision Pro AR App">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ice-blue: #7EC8E3;
+            --deep-blue: #0A1628;
+            --frost-white: #E8F4FD;
+            --crystal: #B8E2F2;
+            --aurora-purple: #6C63FF;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--deep-blue);
+            color: #fff;
+            overflow-x: hidden;
+            line-height: 1.8;
+        }
+
+        /* Snowfall Canvas */
+        #snowfall {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 22, 40, 0.8);
+            border-bottom: 1px solid rgba(126, 200, 227, 0.1);
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, var(--ice-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--ice-blue);
+        }
+
+        .lang-switch {
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-btn {
+            padding: 6px 14px;
+            border: 1px solid rgba(126, 200, 227, 0.3);
+            border-radius: 20px;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active, .lang-btn:hover {
+            background: rgba(126, 200, 227, 0.2);
+            border-color: var(--ice-blue);
+            color: #fff;
+        }
+
+        /* Main Content */
+        .privacy-container {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 140px 40px 80px;
+        }
+
+        .privacy-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .privacy-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, var(--ice-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .privacy-header .updated {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        .privacy-content {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(126, 200, 227, 0.1);
+            border-radius: 24px;
+            padding: 48px;
+            backdrop-filter: blur(10px);
+        }
+
+        .privacy-section {
+            margin-bottom: 40px;
+        }
+
+        .privacy-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .privacy-section h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--ice-blue);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(126, 200, 227, 0.1);
+        }
+
+        .privacy-section p {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.95rem;
+            line-height: 1.9;
+            margin-bottom: 12px;
+        }
+
+        .privacy-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .privacy-section ul li {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            padding-left: 24px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .privacy-section ul li::before {
+            content: '\2744';
+            position: absolute;
+            left: 0;
+            color: var(--ice-blue);
+            font-size: 0.8rem;
+        }
+
+        .privacy-section ul li strong {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .privacy-agreement {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(126, 200, 227, 0.15);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* Back to Home */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--ice-blue);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-top: 40px;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 0.7;
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 2;
+            padding: 40px;
+            border-top: 1px solid rgba(126, 200, 227, 0.1);
+            text-align: center;
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--ice-blue);
+            text-decoration: none;
+        }
+
+        /* Language toggle */
+        [data-lang="zh"] {
+            display: none;
+        }
+
+        body.lang-zh [data-lang="en"] {
+            display: none;
+        }
+
+        body.lang-zh [data-lang="zh"] {
+            display: block;
+        }
+
+        body.lang-zh span[data-lang="zh"] {
+            display: inline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: 16px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .privacy-container {
+                padding: 120px 20px 60px;
+            }
+
+            .privacy-content {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Snowfall Canvas -->
+    <canvas id="snowfall"></canvas>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="nav-logo">ElsaSnowMagic</a>
+        <ul class="nav-links">
+            <li><a href="index.html" data-lang="en">Home</a><a href="index.html" data-lang="zh">首页</a></li>
+            <li><a href="index.html#features" data-lang="en">Features</a><a href="index.html#features" data-lang="zh">功能特点</a></li>
+            <li><a href="privacy.html" style="color: var(--ice-blue);" data-lang="en">Privacy</a><a href="privacy.html" style="color: var(--ice-blue);" data-lang="zh">隐私政策</a></li>
+        </ul>
+        <div class="lang-switch">
+            <button class="lang-btn active" onclick="setLang('en')">EN</button>
+            <button class="lang-btn" onclick="setLang('zh')">中文</button>
+        </div>
+    </nav>
+
+    <!-- English Privacy Policy -->
+    <div class="privacy-container" data-lang="en">
+        <div class="privacy-header">
+            <h1>Privacy Policy</h1>
+            <p class="updated">Last updated: February 2026</p>
+        </div>
+
+        <div class="privacy-content">
+            <div class="privacy-section">
+                <h2>1. Introduction</h2>
+                <p>ElsaSnowMagic ("we", "our", or "the App") respects your privacy. This Privacy Policy explains how we handle information when you use our application.</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2>2. Information We Collect</h2>
+                <p>We do NOT collect, store, or transmit any personal information. Specifically:</p>
+                <ul>
+                    <li><strong>No personal data collection:</strong> We do not collect names, emails, or any identifying information.</li>
+                    <li><strong>No camera data storage:</strong> Hand tracking data is processed locally on your device in real-time and is never stored or transmitted.</li>
+                    <li><strong>No analytics:</strong> We do not use any third-party analytics services.</li>
+                    <li><strong>No advertising:</strong> The App contains no advertisements.</li>
+                </ul>
+            </div>
+
+            <div class="privacy-section">
+                <h2>3. Hand Tracking Data</h2>
+                <p>The App uses Apple Vision Pro's hand tracking feature to detect hand gestures. This data:</p>
+                <ul>
+                    <li>Is processed entirely on your device</li>
+                    <li>Is never recorded, stored, or transmitted</li>
+                    <li>Is used only to trigger visual effects in real-time</li>
+                    <li>Cannot be accessed by us or any third party</li>
+                </ul>
+            </div>
+
+            <div class="privacy-section">
+                <h2>4. Children's Privacy</h2>
+                <p>Our App does not collect any information from anyone, including children under 13 years of age.</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2>5. Changes to This Policy</h2>
+                <p>We may update this Privacy Policy from time to time. Any changes will be posted within the App or on our website.</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2>6. Contact Us</h2>
+                <p>If you have any questions about this Privacy Policy, please contact us at:<br>
+                <a href="mailto:mrfeixiang@gmail.com" style="color: var(--ice-blue);">mrfeixiang@gmail.com</a></p>
+            </div>
+
+            <div class="privacy-agreement">
+                By using ElsaSnowMagic, you agree to this Privacy Policy.
+            </div>
+        </div>
+
+        <a href="index.html" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back to Home
+        </a>
+    </div>
+
+    <!-- Chinese Privacy Policy -->
+    <div class="privacy-container" data-lang="zh">
+        <div class="privacy-header">
+            <h1>隐私政策</h1>
+            <p class="updated">最后更新：2026年2月</p>
+        </div>
+
+        <div class="privacy-content">
+            <div class="privacy-section">
+                <h2>1. 简介</h2>
+                <p>ElsaSnowMagic（以下简称"本应用"）尊重您的隐私。本隐私政策说明我们如何处理您使用本应用时的信息。</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2>2. 我们收集的信息</h2>
+                <p>我们不收集、存储或传输任何个人信息。具体而言：</p>
+                <ul>
+                    <li><strong>不收集个人数据：</strong>我们不收集姓名、电子邮件或任何身份识别信息。</li>
+                    <li><strong>不存储摄像头数据：</strong>手部追踪数据仅在您的设备上实时处理，从不存储或传输。</li>
+                    <li><strong>不使用分析工具：</strong>我们不使用任何第三方分析服务。</li>
+                    <li><strong>无广告：</strong>本应用不包含任何广告。</li>
+                </ul>
+            </div>
+
+            <div class="privacy-section">
+                <h2>3. 手部追踪数据</h2>
+                <p>本应用使用 Apple Vision Pro 的手部追踪功能来检测手势。此数据：</p>
+                <ul>
+                    <li>完全在您的设备上处理</li>
+                    <li>从不被记录、存储或传输</li>
+                    <li>仅用于实时触发视觉效果</li>
+                    <li>我们或任何第三方无法访问</li>
+                </ul>
+            </div>
+
+            <div class="privacy-section">
+                <h2>4. 儿童隐私</h2>
+                <p>本应用不收集任何人的信息，包括13岁以下的儿童。</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2>5. 政策变更</h2>
+                <p>我们可能会不时更新本隐私政策。任何变更将在应用内或我们的网站上公布。</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2>6. 联系我们</h2>
+                <p>如果您对本隐私政策有任何疑问，请通过以下方式联系我们：<br>
+                <a href="mailto:mrfeixiang@gmail.com" style="color: var(--ice-blue);">mrfeixiang@gmail.com</a></p>
+            </div>
+
+            <div class="privacy-agreement">
+                使用 ElsaSnowMagic 即表示您同意本隐私政策。
+            </div>
+        </div>
+
+        <a href="index.html" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            返回首页
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p data-lang="en">&copy; 2026 ElsaSnowMagic. All rights reserved. | <a href="index.html">Home</a></p>
+        <p data-lang="zh">&copy; 2026 ElsaSnowMagic. 保留所有权利。 | <a href="index.html">首页</a></p>
+    </footer>
+
+    <script>
+        // Snowfall Animation (lighter version for privacy page)
+        const canvas = document.getElementById('snowfall');
+        const ctx = canvas.getContext('2d');
+        let snowflakes = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Snowflake {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * -canvas.height;
+                this.size = Math.random() * 2.5 + 0.5;
+                this.speed = Math.random() * 0.8 + 0.2;
+                this.wind = Math.random() * 0.3 - 0.15;
+                this.opacity = Math.random() * 0.4 + 0.1;
+                this.swing = Math.random() * Math.PI * 2;
+                this.swingSpeed = Math.random() * 0.015 + 0.003;
+                this.swingAmplitude = Math.random() * 1 + 0.3;
+            }
+
+            update() {
+                this.swing += this.swingSpeed;
+                this.x += this.wind + Math.sin(this.swing) * this.swingAmplitude * 0.1;
+                this.y += this.speed;
+
+                if (this.y > canvas.height + 10) {
+                    this.reset();
+                    this.y = -10;
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(200, 230, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 50; i++) {
+            snowflakes.push(new Snowflake());
+        }
+
+        function animateSnow() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            snowflakes.forEach(flake => {
+                flake.update();
+                flake.draw();
+            });
+            requestAnimationFrame(animateSnow);
+        }
+
+        animateSnow();
+
+        // Language switching
+        function setLang(lang) {
+            if (lang === 'zh') {
+                document.body.classList.add('lang-zh');
+            } else {
+                document.body.classList.remove('lang-zh');
+            }
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            if (lang === 'zh') {
+                document.querySelectorAll('.lang-btn')[1].classList.add('active');
+            } else {
+                document.querySelectorAll('.lang-btn')[0].classList.add('active');
+            }
+
+            localStorage.setItem('elsaLang', lang);
+        }
+
+        // Restore language preference
+        const savedLang = localStorage.getItem('elsaLang');
+        if (savedLang) {
+            setLang(savedLang);
+        }
+    </script>
+</body>
+</html>
