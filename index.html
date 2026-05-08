@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI+生命科学 | 岗位技能图谱与学习路线</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0c0e14;
+    --card-bg: #141820;
+    --card-border: #1e2430;
+    --text: #e0e4ec;
+    --text-dim: #6b7a90;
+    --accent-blue: #3b82f6;
+    --accent-cyan: #22d3ee;
+    --accent-purple: #a78bfa;
+    --accent-green: #34d399;
+    --accent-orange: #fb923c;
+    --accent-red: #f87171;
+    --accent-pink: #f472b6;
+    --gradient-1: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    --gradient-2: linear-gradient(135deg, #22d3ee, #34d399);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    background: rgba(12, 14, 20, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 0 24px;
+  }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+  .nav-brand {
+    font-weight: 800;
+    font-size: 16px;
+    background: var(--gradient-1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+  .nav-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent-blue); }
+
+  /* ===== HERO ===== */
+  .hero {
+    padding: 140px 24px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse at center top, rgba(59,130,246,0.08) 0%, transparent 60%);
+  }
+  .hero-badge {
+    display: inline-block;
+    padding: 5px 16px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-blue);
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(32px, 6vw, 56px);
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff 0%, #93c5fd 50%, #c4b5fd 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: 17px;
+    color: var(--text-dim);
+    max-width: 640px;
+    margin: 0 auto 36px;
+    line-height: 1.8;
+  }
+  .hero-cta {
+    display: inline-flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: var(--gradient-1);
+    color: #fff;
+    border: none;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59,130,246,0.3); }
+  .btn-outline {
+    background: transparent;
+    color: var(--accent-cyan);
+    border: 1px solid rgba(34,211,238,0.3);
+  }
+  .btn-outline:hover { background: rgba(34,211,238,0.08); }
+
+  /* ===== CONTAINER ===== */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ===== SECTION ===== */
+  .section {
+    padding: 80px 0;
+  }
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-blue);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+  .section-desc {
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 600px;
+    margin-bottom: 40px;
+  }
+  .divider {
+    border: none;
+    border-top: 1px solid var(--card-border);
+    margin: 0 auto;
+    max-width: 1200px;
+  }
+
+  /* ===== JOB CARDS ===== */
+  .job-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .job-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .job-card:hover { border-color: rgba(59,130,246,0.3); }
+  .job-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+  .job-card.blue::before { background: var(--gradient-1); }
+  .job-card.green::before { background: var(--gradient-2); }
+
+  .job-location {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .job-card.blue .job-location {
+    background: rgba(59,130,246,0.1);
+    color: var(--accent-blue);
+  }
+  .job-card.green .job-location {
+    background: rgba(34,211,238,0.1);
+    color: var(--accent-cyan);
+  }
+
+  .job-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+  .job-duties {
+    list-style: none;
+    padding: 0;
+  }
+  .job-duties li {
+    padding: 8px 0 8px 16px;
+    border-left: 2px solid var(--card-border);
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 6px;
+    transition: border-color 0.2s;
+  }
+  .job-duties li:hover { border-color: var(--accent-blue); color: var(--text); }
+
+  .job-contact {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--card-border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent-green);
+  }
+
+  /* ===== SKILL MAP ===== */
+  .skill-tracks {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+  .track {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 24px 22px;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .track:hover {
+    border-color: rgba(59,130,246,0.3);
+    transform: translateY(-4px);
+  }
+  .track-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .track-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .track-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+  .track-skills {
+    list-style: none;
+    padding: 0;
+  }
+  .track-skills li {
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .track-skills li::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .track.ai .track-skills li::before { background: var(--accent-blue); }
+  .track.chem .track-skills li::before { background: var(--accent-cyan); }
+  .track.bio .track-skills li::before { background: var(--accent-green); }
+  .track.infra .track-skills li::before { background: var(--accent-orange); }
+  .track.soft .track-skills li::before { background: var(--accent-purple); }
+  .track.acad .track-skills li::before { background: var(--accent-pink); }
+
+  /* ===== YOUTUBE LEARNING ===== */
+  .learn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .learn-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 24px;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .learn-card:hover {
+    border-color: rgba(248,113,113,0.3);
+    transform: translateY(-3px);
+  }
+  .learn-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .learn-cat.ml { color: var(--accent-blue); }
+  .learn-cat.chem { color: var(--accent-cyan); }
+  .learn-cat.bio { color: var(--accent-green); }
+  .learn-cat.tool { color: var(--accent-orange); }
+  .learn-cat.acad { color: var(--accent-purple); }
+  .learn-cat.fep { color: var(--accent-pink); }
+
+  .learn-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  .learn-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+  .learn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f87171;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .learn-link:hover { color: #fca5a5; }
+  .learn-link .yt-icon {
+    display: inline-block;
+    width: 20px;
+    height: 14px;
+    background: #f87171;
+    border-radius: 3px;
+    position: relative;
+  }
+  .learn-link .yt-icon::after {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 3px;
+    border-style: solid;
+    border-width: 4px 0 4px 7px;
+    border-color: transparent transparent transparent #fff;
+  }
+  .learn-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .learn-extra {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .learn-extra a {
+    color: var(--accent-blue);
+    text-decoration: none;
+  }
+  .learn-extra a:hover { text-decoration: underline; }
+
+  /* ===== ROADMAP ===== */
+  .roadmap {
+    position: relative;
+    padding-left: 40px;
+  }
+  .roadmap::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent-blue), var(--accent-cyan), var(--accent-green), var(--accent-purple));
+  }
+  .roadmap-step {
+    position: relative;
+    margin-bottom: 32px;
+    padding: 22px 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+  }
+  .roadmap-step::before {
+    content: '';
+    position: absolute;
+    left: -32px;
+    top: 26px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-blue);
+    background: var(--bg);
+  }
+  .roadmap-step:nth-child(2)::before { border-color: var(--accent-cyan); }
+  .roadmap-step:nth-child(3)::before { border-color: var(--accent-green); }
+  .roadmap-step:nth-child(4)::before { border-color: var(--accent-purple); }
+
+  .roadmap-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .roadmap-step:nth-child(1) .roadmap-time { color: var(--accent-blue); }
+  .roadmap-step:nth-child(2) .roadmap-time { color: var(--accent-cyan); }
+  .roadmap-step:nth-child(3) .roadmap-time { color: var(--accent-green); }
+  .roadmap-step:nth-child(4) .roadmap-time { color: var(--accent-purple); }
+
+  .roadmap-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .roadmap-desc {
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* ===== CONTACT ===== */
+  .contact-section {
+    text-align: center;
+    padding: 80px 24px;
+    background: radial-gradient(ellipse at center, rgba(59,130,246,0.06) 0%, transparent 60%);
+  }
+  .contact-card {
+    display: inline-block;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 36px 48px;
+    text-align: center;
+  }
+  .contact-card h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  .contact-wechat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: var(--accent-green);
+    font-weight: 600;
+    margin: 16px 0;
+    padding: 12px 24px;
+    background: rgba(34,211,238,0.05);
+    border: 1px solid rgba(34,211,238,0.15);
+    border-radius: 8px;
+    display: inline-block;
+  }
+  .contact-note {
+    font-size: 14px;
+    color: var(--text-dim);
+    max-width: 400px;
+    margin: 12px auto 0;
+    line-height: 1.7;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    text-align: center;
+    padding: 40px 24px;
+    border-top: 1px solid var(--card-border);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .job-grid, .learn-grid { grid-template-columns: 1fr; }
+    .skill-tracks { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .skill-tracks { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">AI + Life Science</div>
+    <ul class="nav-links">
+      <li><a href="#jobs">岗位需求</a></li>
+      <li><a href="#skills">技能图谱</a></li>
+      <li><a href="#learn">学习资源</a></li>
+      <li><a href="#roadmap">路线图</a></li>
+      <li><a href="#contact">联系方式</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">2026 · AI for Science 求职指南</div>
+  <h1>AI + 生命科学<br>核心技能与学习路线</h1>
+  <p class="hero-sub">
+    两个真实岗位 JD 拆解 → 六大技能赛道 → 精选 YouTube 学习资源<br>
+    从企业实际需求出发，帮你建立可验证的技术栈
+  </p>
+  <div class="hero-cta">
+    <a href="#jobs" class="btn btn-primary">查看岗位需求 ↓</a>
+    <a href="#learn" class="btn btn-outline">直达学习资源</a>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ===== JOB POSTINGS ===== -->
+<div class="container" id="jobs">
+  <div class="section">
+    <div class="section-label">// JOB REQUIREMENTS</div>
+    <div class="section-title">两个真实在招岗位</div>
+    <p class="section-desc">下面是两个 AI+生命科学方向的典型岗位 JD。我们把每条职责拆开，对应到需要学什么。</p>
+
+    <div class="job-grid">
+
+      <!-- Job 1 -->
+      <div class="job-card blue">
+        <div class="job-location">北京</div>
+        <div class="job-title">AI 算法工程师<br><span style="font-size:14px; color:var(--accent-blue); font-weight:500;">（化学方向）</span></div>
+        <ul class="job-duties">
+          <li>主导设计 GNN、Transformer 模型，用于化学反应预测、逆合成分析、反应条件优化及合成可行性评估</li>
+          <li>构建高质量化学反应数据库，制定数据标准，数据挖掘与清洗</li>
+          <li>整合量子化学计算（DFT）、分子模拟，生成多维数据与 AI 模型结合</li>
+          <li>作为 AI 技术核心接口，与化学科研团队紧密合作，将化学问题转化为 AI 项目</li>
+          <li>负责技术架构决策，确保可扩展性、稳定性和可维护性</li>
+          <li>跟踪 AI for Chemistry 最新进展，评估引入新技术</li>
+        </ul>
+        <div class="job-contact">📱 微信: 19921973017</div>
+      </div>
+
+      <!-- Job 2 -->
+      <div class="job-card green">
+        <div class="job-location">上海</div>
+        <div class="job-title">抗体工程与药物设计专家<br><span style="font-size:14px; color:var(--accent-cyan); font-weight:500;">（计算方向）</span></div>
+        <ul class="job-duties">
+          <li>运用 AlphaFold3、RFdiffusion 等 AI 平台，主导抗体设计、优化与功能预测</li>
+          <li>分子对接、分子动力学模拟、自由能微扰（FEP）进行蛋白质-配体相互作用分析</li>
+          <li>协同 ML 团队，将计算生物学洞见转化为模型开发需求</li>
+          <li>整合多维实验数据（测序、质谱、结构、功能），解决抗体/药物设计关键问题</li>
+        </ul>
+        <div style="margin-top:16px; padding:14px; background:rgba(34,211,238,0.05); border:1px solid rgba(34,211,238,0.12); border-radius:6px;">
+          <div style="font-size:12px; color:var(--accent-cyan); font-weight:600; margin-bottom:6px;">任职资格</div>
+          <div style="font-size:13px; color:var(--text-dim); line-height:1.8;">
+            博士学位 + 2-3年相关经验<br>
+            精通 AlphaFold3 / RFdiffusion / Rosetta<br>
+            精通 GROMACS / AMBER / NAMD<br>
+            分子对接、同源建模、结构分析
+          </div>
+        </div>
+        <div class="job-contact">📱 联系人: Alina 13120540146</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ===== SKILL MAP ===== -->
+<div class="container" id="skills">
+  <div class="section">
+    <div class="section-label">// SKILL MAP</div>
+    <div class="section-title">六大核心技能赛道</div>
+    <p class="section-desc">从两份 JD 中提炼出的关键能力要求，按技术方向归类。</p>
+
+    <div class="skill-tracks">
+      <div class="track ai">
+        <span class="track-icon">🧠</span>
+        <div class="track-name">AI / ML 建模</div>
+        <div class="track-sub">两个岗位共同核心</div>
+        <ul class="track-skills">
+          <li>PyTorch / TensorFlow 框架</li>
+          <li>GNN 图神经网络</li>
+          <li>Transformer 架构</li>
+          <li>强化学习 (RL)</li>
+          <li>生成式模型 (Diffusion)</li>
+          <li>模型训练 / 微调 / 评估</li>
+        </ul>
+      </div>
+
+      <div class="track chem">
+        <span class="track-icon">⚗️</span>
+        <div class="track-name">计算化学</div>
+        <div class="track-sub">岗位1 重点</div>
+        <ul class="track-skills">
+          <li>DFT 密度泛函理论</li>
+          <li>化学反应预测</li>
+          <li>逆合成分析 (Retrosynthesis)</li>
+          <li>反应条件优化</li>
+          <li>SMILES / 分子表征</li>
+          <li>化学数据库构建</li>
+        </ul>
+      </div>
+
+      <div class="track bio">
+        <span class="track-icon">🧬</span>
+        <div class="track-name">结构/计算生物</div>
+        <div class="track-sub">岗位2 重点</div>
+        <ul class="track-skills">
+          <li>AlphaFold3 蛋白质预测</li>
+          <li>RFdiffusion 蛋白质设计</li>
+          <li>Rosetta 套件</li>
+          <li>抗体工程 / Nanobody</li>
+          <li>蛋白质-配体相互作用</li>
+          <li>结构生物学理论</li>
+        </ul>
+      </div>
+
+      <div class="track infra">
+        <span class="track-icon">🔧</span>
+        <div class="track-name">模拟与对接</div>
+        <div class="track-sub">两个岗位共需</div>
+        <ul class="track-skills">
+          <li>分子动力学 (GROMACS/AMBER/NAMD)</li>
+          <li>分子对接 (AutoDock/Glide)</li>
+          <li>自由能微扰 (FEP/FEP+)</li>
+          <li>同源建模</li>
+          <li>MM-GBSA/MM-PBSA</li>
+          <li>PyMOL / VMD 可视化</li>
+        </ul>
+      </div>
+
+      <div class="track soft">
+        <span class="track-icon">💻</span>
+        <div class="track-name">工程能力</div>
+        <div class="track-sub">岗位1 架构要求</div>
+        <ul class="track-skills">
+          <li>Python 工程化</li>
+          <li>数据管道 / ETL</li>
+          <li>Docker / Linux 运维</li>
+          <li>GPU 集群管理</li>
+          <li>API 设计与部署</li>
+          <li>Git / CI-CD</li>
+        </ul>
+      </div>
+
+      <div class="track acad">
+        <span class="track-icon">📚</span>
+        <div class="track-name">领域知识</div>
+        <div class="track-sub">不可替代的壁垒</div>
+        <ul class="track-skills">
+          <li>有机化学 / 药物化学</li>
+          <li>蛋白质结构-功能关系</li>
+          <li>ADMET 药代动力学</li>
+          <li>临床前开发流程</li>
+          <li>文献追踪与评估</li>
+          <li>跨团队沟通能力</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ===== YOUTUBE LEARNING ===== -->
+<div class="container" id="learn">
+  <div class="section">
+    <div class="section-label">// LEARNING RESOURCES</div>
+    <div class="section-title">YouTube 学习资源精选</div>
+    <p class="section-desc">每个技能方向对应的免费视频教程，从入门到实战。点击直达 YouTube。</p>
+
+    <div class="learn-grid">
+
+      <!-- GNN -->
+      <div class="learn-card">
+        <div class="learn-cat ml">AI / MACHINE LEARNING</div>
+        <div class="learn-title">GNN 图神经网络 · 分子性质预测</div>
+        <div class="learn-desc">用 PyTorch Geometric 从零搭建 GCN，在 QM9 数据集上训练分子属性预测模型。配套代码仓库。</div>
+        <div class="learn-links">
+          <a href="https://github.com/HFooladi/GNNs-For-Chemists" target="_blank" class="learn-link"><span class="yt-icon"></span> GNNs-For-Chemists GitHub</a>
+          <div class="learn-extra">教程文档: <a href="https://projects.volkamerlab.org/teachopencadd/talktorials/T035_graph_neural_networks.html" target="_blank">TeachOpenCADD T035</a></div>
+          <div class="learn-extra">深度阅读: <a href="https://dmol.pub/dl/gnn.html" target="_blank">Deep Learning for Molecules — Ch.8 GNN</a></div>
+        </div>
+      </div>
+
+      <!-- TorchDrug -->
+      <div class="learn-card">
+        <div class="learn-cat ml">AI / DRUG DISCOVERY</div>
+        <div class="learn-title">TorchDrug · PyTorch 药物发现平台</div>
+        <div class="learn-desc">涵盖 GNN、生成模型、强化学习，覆盖分子生成、性质预测、逆合成全流程。</div>
+        <div class="learn-links">
+          <a href="https://www.youtube.com/watch?v=-Kb7kN4aHMM" target="_blank" class="learn-link"><span class="yt-icon"></span> AI-Code-Mastery: TorchDrug</a>
+          <div class="learn-extra">官方文档: <a href="https://torchdrug.ai/get_started" target="_blank">torchdrug.ai</a></div>
+          <div class="learn-extra">另推: <a href="https://github.com/deepchem/deepchem" target="_blank">DeepChem</a> — 另一个优秀的药物发现 ML 框架</div>
+        </div>
+      </div>
+
+      <!-- Retrosynthesis -->
+      <div class="learn-card">
+        <div class="learn-cat chem">COMPUTATIONAL CHEMISTRY</div>
+        <div class="learn-title">Transformer 逆合成分析</div>
+        <div class="learn-desc">Chemformer 在 1800 万反应数据上训练，药物发现常见反应类型 top-10 round-trip 准确率 >0.97。</div>
+        <div class="learn-links">
+          <div class="learn-extra">论文: <a href="https://arxiv.org/abs/2310.06083" target="_blank">Transformers & LLMs for Chemistry (arXiv)</a></div>
+          <div class="learn-extra">最新: <a href="https://www.nature.com/articles/s41598-026-38821-z" target="_blank">DeepRetro (Nature, 2026)</a></div>
+          <div class="learn-extra">资源合集: <a href="https://github.com/PatWalters/resources_2025" target="_blank">ML in Drug Discovery Resources 2025</a></div>
+        </div>
+      </div>
+
+      <!-- DFT -->
+      <div class="learn-card">
+        <div class="learn-cat chem">QUANTUM CHEMISTRY</div>
+        <div class="learn-title">DFT 密度泛函理论入门</div>
+        <div class="learn-desc">从理论基础到上手计算，理解电子密度如何替代波函数描述多体系统。</div>
+        <div class="learn-links">
+          <a href="https://www.youtube.com/watch?v=HxUZKPg6Jig" target="_blank" class="learn-link"><span class="yt-icon"></span> DFT: Introduction & Applications</a>
+          <div class="learn-extra">入门教材: <a href="https://www.exeter.ac.uk/research-centres/quantum-systems-and-nanomaterials/density-functional-theory/" target="_blank">Exeter Univ. DFT for Beginners</a></div>
+          <div class="learn-extra">概念科普: <a href="https://matlantis.com/en/resources/blog/dft/" target="_blank">Matlantis — What is DFT?</a></div>
+        </div>
+      </div>
+
+      <!-- GROMACS -->
+      <div class="learn-card">
+        <div class="learn-cat bio">MOLECULAR DYNAMICS</div>
+        <div class="learn-title">GROMACS 分子动力学模拟</div>
+        <div class="learn-desc">从安装到蛋白质在水中的完整 MD 模拟，适合零基础。2025-2026 最新教程。</div>
+        <div class="learn-links">
+          <a href="https://www.youtube.com/watch?v=-S1eP-iWE8c" target="_blank" class="learn-link"><span class="yt-icon"></span> GROMACS 完整入门教程 (2025)</a>
+          <a href="https://www.youtube.com/watch?v=kCKYkNygc9I" target="_blank" class="learn-link"><span class="yt-icon"></span> 安装 + Beginner Tutorial</a>
+          <div class="learn-extra">系列教程: <a href="https://www.youtube.com/playlist?list=PLs_nni5HZu9aztT3p4tgTnIpW4tw4qyzz" target="_blank">GROMACS 播放列表</a></div>
+          <div class="learn-extra">官方教程: <a href="http://www.mdtutorials.com/gmx/" target="_blank">mdtutorials.com</a> ｜ <a href="https://tutorials.gromacs.org/md-intro-tutorial.html" target="_blank">tutorials.gromacs.org</a></div>
+        </div>
+      </div>
+
+      <!-- AlphaFold / RFdiffusion -->
+      <div class="learn-card">
+        <div class="learn-cat bio">PROTEIN DESIGN</div>
+        <div class="learn-title">AlphaFold3 + RFdiffusion 蛋白质设计</div>
+        <div class="learn-desc">RFdiffusion3 在全原子层面生成蛋白质，与配体、DNA 的复杂交互一步到位。50+ 在线课程可选。</div>
+        <div class="learn-links">
+          <div class="learn-extra">课程集合: <a href="https://www.classcentral.com/subject/alphafold" target="_blank">Class Central — 50+ AlphaFold Courses</a></div>
+          <div class="learn-extra">综述: <a href="https://www.tamarind.bio/blog/a-comprehensive-introduction-to-ai-for-proteins" target="_blank">AI for Proteins 全面介绍 (2026)</a></div>
+          <div class="learn-extra">设计教程: <a href="https://github.com/ProteinDesignLab/protein-design-tutorials" target="_blank">Protein Design Lab Tutorials (GitHub)</a></div>
+        </div>
+      </div>
+
+      <!-- Molecular Docking -->
+      <div class="learn-card">
+        <div class="learn-cat tool">MOLECULAR DOCKING</div>
+        <div class="learn-title">AutoDock Vina 分子对接实操</div>
+        <div class="learn-desc">从软件安装到结果分析的全流程教学，涵盖蛋白准备、配体准备、网格设定、结果可视化。</div>
+        <div class="learn-links">
+          <a href="https://www.youtube.com/watch?v=UBDb2QppeF4" target="_blank" class="learn-link"><span class="yt-icon"></span> AutoDock Vina 完整指南 (2026)</a>
+          <a href="https://www.youtube.com/watch?v=-Rv6jiEBsuI" target="_blank" class="learn-link"><span class="yt-icon"></span> 入门到进阶 + PyMOL</a>
+          <a href="https://www.youtube.com/watch?v=kpYf_b4CWW4" target="_blank" class="learn-link"><span class="yt-icon"></span> UCSF Chimera + Vina 教程</a>
+          <div class="learn-extra">官方文档: <a href="https://autodock-vina.readthedocs.io/en/latest/docking_basic.html" target="_blank">Vina Docs</a></div>
+        </div>
+      </div>
+
+      <!-- FEP -->
+      <div class="learn-card">
+        <div class="learn-cat fep">FREE ENERGY PERTURBATION</div>
+        <div class="learn-title">FEP 自由能微扰 · 药物设计</div>
+        <div class="learn-desc">预测小分子与靶蛋白的结合亲和力。Schrödinger FEP+ 是业界标准，同时 NAMD 提供免费方案。</div>
+        <div class="learn-links">
+          <a href="https://www.youtube.com/watch?v=gvQChFu42jM" target="_blank" class="learn-link"><span class="yt-icon"></span> FEP+ 药物设计 Webinar</a>
+          <div class="learn-extra">课程: <a href="https://www.schrodinger.com/life-science/learn/education/courses/smdd-fep/" target="_blank">Schrödinger FEP+ 官方课程</a></div>
+          <div class="learn-extra">教程: <a href="https://www.ks.uiuc.edu/Training/Tutorials/namd/FEP/tutorial-FEP.pdf" target="_blank">NAMD FEP Tutorial (UIUC)</a></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ===== ROADMAP ===== -->
+<div class="container" id="roadmap">
+  <div class="section">
+    <div class="section-label">// LEARNING ROADMAP</div>
+    <div class="section-title">学习路线建议</div>
+    <p class="section-desc">不是"三个月速成"的鸡汤，而是一条务实的、从基础到项目的行进路线。</p>
+
+    <div class="roadmap">
+      <div class="roadmap-step">
+        <div class="roadmap-time">MONTH 1-3 · 打基础</div>
+        <div class="roadmap-title">理论 + 工具上手</div>
+        <div class="roadmap-desc">
+          <strong>化学方向：</strong>有机化学核心概念复习 → 学 RDKit 处理 SMILES 分子表征 → PyTorch 基础 → GNN 原理与简单实现<br>
+          <strong>生物方向：</strong>结构生物学基础 → AlphaFold3 跑通第一个蛋白预测 → GROMACS 完成第一个 MD 模拟 → AutoDock Vina 入门对接
+        </div>
+      </div>
+      <div class="roadmap-step">
+        <div class="roadmap-time">MONTH 3-6 · 模型实战</div>
+        <div class="roadmap-title">从教程到真实数据</div>
+        <div class="roadmap-desc">
+          <strong>化学方向：</strong>在公开反应数据集上训练自己的 GNN/Transformer 模型 → 逆合成预测项目 → DFT 入门计算 → 与 ML 结果交叉验证<br>
+          <strong>生物方向：</strong>RFdiffusion 蛋白设计 → Rosetta 抗体建模 → FEP 结合自由能计算 → 完整的 docking → MD → FEP 流程
+        </div>
+      </div>
+      <div class="roadmap-step">
+        <div class="roadmap-time">MONTH 6-9 · 端到端项目</div>
+        <div class="roadmap-title">构建可展示的成果</div>
+        <div class="roadmap-desc">
+          选一个真实靶点，做完从分子生成/筛选 → 对接 → MD → 候选化合物推荐的全流程。把代码整理成可复现的 GitHub 仓库。这是面试时最有力的材料。
+        </div>
+      </div>
+      <div class="roadmap-step">
+        <div class="roadmap-time">MONTH 9-12 · 论文 + 求职</div>
+        <div class="roadmap-title">建立行业存在感</div>
+        <div class="roadmap-desc">
+          在项目基础上产出预印本或技术博客 → 参加行业 meetup 和学术会议 → 跟踪目标公司的技术方向 → 针对性准备面试，用项目经验说话而不是堆简历关键词。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ===== CONTACT ===== -->
+<div class="contact-section" id="contact">
+  <div class="contact-card">
+    <h3>想聊聊？</h3>
+    <p style="color: var(--text-dim); font-size: 14px;">有兴趣的朋友欢迎加微信交流</p>
+    <div class="contact-wechat">微信: 19921973017</div>
+    <p class="contact-note">
+      无论你是在准备转行、正在学习、还是已经在行业里想切磋，都欢迎来聊。
+    </p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>AI + Life Science Career Guide · 2026</p>
+  <p style="margin-top: 6px; color: rgba(255,255,255,0.2);">Built for learners, by learners.</p>
+</footer>
+
+</body>
+</html>
