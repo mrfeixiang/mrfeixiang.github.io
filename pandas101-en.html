@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pandas 101 - 5-Day Mastery Plan</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --accent: #ff6d00;
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #1a1a2e;
+            --text-light: #5a6377;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --day1: #6366f1;
+            --day2: #8b5cf6;
+            --day3: #ec4899;
+            --day4: #f59e0b;
+            --day5: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+            position: relative;
+            letter-spacing: -1px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(90deg, #ffd700, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero .subtitle {
+            margin-top: 20px;
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            max-width: 900px;
+            margin: -30px auto 0;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .progress-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-header h3 {
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+
+        .progress-header .percent {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2, #ec4899);
+            border-radius: 6px;
+            transition: width 0.6s ease;
+            width: 0%;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            max-width: 900px;
+            margin: 30px auto 0;
+            padding: 0 20px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-tab {
+            padding: 10px 22px;
+            border-radius: 30px;
+            border: 2px solid var(--border);
+            background: var(--card);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            color: var(--text-light);
+        }
+
+        .nav-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .nav-tab.active {
+            color: white;
+            border-color: transparent;
+        }
+
+        .nav-tab[data-day="1"].active { background: var(--day1); }
+        .nav-tab[data-day="2"].active { background: var(--day2); }
+        .nav-tab[data-day="3"].active { background: var(--day3); }
+        .nav-tab[data-day="4"].active { background: var(--day4); }
+        .nav-tab[data-day="5"].active { background: var(--day5); }
+
+        /* Day Content */
+        .content-area {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px 60px;
+        }
+
+        .day-panel {
+            display: none;
+        }
+
+        .day-panel.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .day-header {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border-left: 5px solid;
+        }
+
+        .day-panel[data-day="1"] .day-header { border-color: var(--day1); }
+        .day-panel[data-day="2"] .day-header { border-color: var(--day2); }
+        .day-panel[data-day="3"] .day-header { border-color: var(--day3); }
+        .day-panel[data-day="4"] .day-header { border-color: var(--day4); }
+        .day-panel[data-day="5"] .day-header { border-color: var(--day5); }
+
+        .day-header .day-label {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .day-panel[data-day="1"] .day-label { background: var(--day1); }
+        .day-panel[data-day="2"] .day-label { background: var(--day2); }
+        .day-panel[data-day="3"] .day-label { background: var(--day3); }
+        .day-panel[data-day="4"] .day-label { background: var(--day4); }
+        .day-panel[data-day="5"] .day-label { background: var(--day5); }
+
+        .day-header h2 {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+
+        .day-header p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Topic Cards */
+        .topic-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        .topic-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topic-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .topic-card .description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            padding-left: 40px;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .code-block .comment { color: #94a3b8; }
+        .code-block .keyword { color: #c084fc; }
+        .code-block .string { color: #86efac; }
+        .code-block .function { color: #67e8f9; }
+        .code-block .number { color: #fbbf24; }
+
+        /* YouTube Section */
+        .video-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        .video-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: #dc2626;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .video-item {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .video-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .video-item iframe {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border: none;
+            display: block;
+        }
+
+        .video-item .video-info {
+            padding: 12px 14px;
+        }
+
+        .video-item .video-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .video-item .video-channel {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Checklist / To-Do */
+        .checklist-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        .checklist-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .checklist-item:hover {
+            background: #f8fafc;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .checkmark svg {
+            width: 14px;
+            height: 14px;
+            fill: none;
+            stroke: white;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .checklist-item input:checked + .checkmark {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .checklist-item input:checked + .checkmark svg {
+            opacity: 1;
+        }
+
+        .checklist-item input:checked ~ .check-label {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+
+        .check-label {
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .check-label .sub {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        /* Tips */
+        .tip-box {
+            background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 12px;
+            font-size: 0.88rem;
+            color: #1e40af;
+        }
+
+        .tip-box strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        /* Reset button */
+        .reset-btn {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 18px;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #e2e8f0;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            .nav-tab { padding: 8px 16px; font-size: 0.8rem; }
+            .day-header h2 { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+    <h1><span>Pandas 101</span></h1>
+    <p>Master the core of Python data analysis — learn Pandas in just 5 days</p>
+    <div class="subtitle">Day 1 ~ Day 5 | YouTube Lectures + Hands-on Checklists</div>
+</section>
+
+<!-- Progress -->
+<section class="progress-section">
+    <div class="progress-card">
+        <div class="progress-header">
+            <h3>Overall Learning Progress</h3>
+            <span class="percent" id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <button class="reset-btn" onclick="resetAll()">Reset Progress</button>
+    </div>
+</section>
+
+<!-- Nav Tabs -->
+<nav class="nav-tabs">
+    <button class="nav-tab active" data-day="1" onclick="showDay(1)">Day 1</button>
+    <button class="nav-tab" data-day="2" onclick="showDay(2)">Day 2</button>
+    <button class="nav-tab" data-day="3" onclick="showDay(3)">Day 3</button>
+    <button class="nav-tab" data-day="4" onclick="showDay(4)">Day 4</button>
+    <button class="nav-tab" data-day="5" onclick="showDay(5)">Day 5</button>
+</nav>
+
+<!-- Content -->
+<main class="content-area">
+
+    <!-- ==================== DAY 1 ==================== -->
+    <div class="day-panel active" data-day="1">
+        <div class="day-header">
+            <span class="day-label">DAY 1</span>
+            <h2>Introduction to Pandas & Core Data Structures</h2>
+            <p>Understand what Pandas is and learn the core data structures: Series and DataFrame.</p>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#eef2ff;color:var(--day1)">1</span> What is Pandas?</h3>
+            <p class="description">Pandas is a Python library for easily working with data. It lets you handle tabular (spreadsheet-like) data just like Excel.</p>
+            <div class="code-block">
+<span class="comment"># Install pandas</span>
+<span class="keyword">pip install</span> pandas
+
+<span class="comment"># Import pandas</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">print</span>(pd.__version__)
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#eef2ff;color:var(--day1)">2</span> Series</h3>
+            <p class="description">A Series is a one-dimensional array-like data structure. It consists of an index and values.</p>
+            <div class="code-block">
+<span class="comment"># Create a Series from a list</span>
+s = pd.<span class="function">Series</span>([<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>])
+<span class="keyword">print</span>(s)
+
+<span class="comment"># Specify custom index</span>
+s = pd.<span class="function">Series</span>([<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>], index=[<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>])
+<span class="keyword">print</span>(s[<span class="string">'b'</span>])  <span class="comment"># 20</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#eef2ff;color:var(--day1)">3</span> DataFrame</h3>
+            <p class="description">A DataFrame is a two-dimensional tabular data structure. It consists of rows and columns.</p>
+            <div class="code-block">
+<span class="comment"># Create a DataFrame from a dictionary</span>
+data = {
+    <span class="string">'Name'</span>: [<span class="string">'Kim Cheolsu'</span>, <span class="string">'Lee Younghee'</span>, <span class="string">'Park Minsu'</span>],
+    <span class="string">'Age'</span>: [<span class="number">25</span>, <span class="number">30</span>, <span class="number">28</span>],
+    <span class="string">'City'</span>: [<span class="string">'Seoul'</span>, <span class="string">'Busan'</span>, <span class="string">'Daejeon'</span>]
+}
+df = pd.<span class="function">DataFrame</span>(data)
+<span class="keyword">print</span>(df)
+
+<span class="comment"># Output:</span>
+<span class="comment">#           Name  Age     City</span>
+<span class="comment"># 0   Kim Cheolsu   25    Seoul</span>
+<span class="comment"># 1  Lee Younghee   30    Busan</span>
+<span class="comment"># 2   Park Minsu   28  Daejeon</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#eef2ff;color:var(--day1)">4</span> Basic Exploration Functions</h3>
+            <p class="description">Essential functions to quickly understand the structure and contents of a DataFrame.</p>
+            <div class="code-block">
+df.<span class="function">head</span>()       <span class="comment"># View first 5 rows</span>
+df.<span class="function">tail</span>()       <span class="comment"># View last 5 rows</span>
+df.<span class="function">shape</span>        <span class="comment"># (number of rows, number of columns)</span>
+df.<span class="function">info</span>()       <span class="comment"># Data types and other info</span>
+df.<span class="function">describe</span>()   <span class="comment"># Basic statistical summary</span>
+df.<span class="function">columns</span>      <span class="comment"># List of column names</span>
+df.<span class="function">dtypes</span>       <span class="comment"># Data type of each column</span>
+            </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="video-section">
+            <h3>&#9654; Recommended YouTube Lectures</h3>
+            <div class="video-grid">
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/8LfmKMw1dcs" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas Warm-up I - Pandas Data Structures</div>
+                        <div class="video-channel">Free Pandas for Data Analysis Course</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/pFXipjh0ghw" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Understanding Pandas, DataFrames, and Series</div>
+                        <div class="video-channel">Minsuk Heo</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/lspu830SzC8" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas in 10 Minutes - Intro & Creating DataFrames</div>
+                        <div class="video-channel">Pandas Basics Series [1/29]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="checklist-section">
+            <h3>&#9745; Day 1 Learning Checklist</h3>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d1-1" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Install Pandas and verify import<span class="sub">Run pip install pandas, then test with import pandas as pd</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d1-2" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Practice creating Series<span class="sub">Create Series from lists and dictionaries, then try indexing</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d1-3" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Practice creating DataFrames<span class="sub">Create a DataFrame from a dictionary and use head(), info(), etc.</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d1-4" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Watch at least 1 recommended YouTube lecture<span class="sub">Watch at least one of the videos above</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d1-5" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Practice loading a CSV file<span class="sub">Load external data using pd.read_csv('filename.csv')</span></span>
+            </label>
+            <div class="tip-box">
+                <strong>Tip!</strong>
+                Practicing in Jupyter Notebook or Google Colab lets you see results immediately, making learning much more effective.
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DAY 2 ==================== -->
+    <div class="day-panel" data-day="2">
+        <div class="day-header">
+            <span class="day-label">DAY 2</span>
+            <h2>Data Selection & Indexing</h2>
+            <p>Learn how to freely select rows and columns, and filter data based on conditions.</p>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#f3e8ff;color:var(--day2)">1</span> Selecting Columns</h3>
+            <p class="description">Various ways to select the columns you want from a DataFrame.</p>
+            <div class="code-block">
+<span class="comment"># Select a single column (returns a Series)</span>
+df[<span class="string">'Name'</span>]
+
+<span class="comment"># Select multiple columns (returns a DataFrame)</span>
+df[[<span class="string">'Name'</span>, <span class="string">'Age'</span>]]
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#f3e8ff;color:var(--day2)">2</span> loc & iloc Indexing</h3>
+            <p class="description">loc is label-based indexing, iloc is integer (position)-based indexing.</p>
+            <div class="code-block">
+<span class="comment"># loc: label-based indexing</span>
+df.<span class="function">loc</span>[<span class="number">0</span>, <span class="string">'Name'</span>]            <span class="comment"># 'Name' column of row 0</span>
+df.<span class="function">loc</span>[<span class="number">0</span>:<span class="number">2</span>, [<span class="string">'Name'</span>, <span class="string">'Age'</span>]]   <span class="comment"># Rows 0-2, Name & Age columns</span>
+
+<span class="comment"># iloc: integer (position)-based indexing</span>
+df.<span class="function">iloc</span>[<span class="number">0</span>, <span class="number">0</span>]                <span class="comment"># Row 0, Column 0</span>
+df.<span class="function">iloc</span>[<span class="number">0</span>:<span class="number">2</span>, <span class="number">0</span>:<span class="number">2</span>]             <span class="comment"># Rows 0-1, Columns 0-1</span>
+df.<span class="function">iloc</span>[:, <span class="number">1</span>]                <span class="comment"># All rows, Column 1</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#f3e8ff;color:var(--day2)">3</span> Conditional Filtering</h3>
+            <p class="description">Extract only the data that meets your conditions. Similar to the filter feature in Excel!</p>
+            <div class="code-block">
+<span class="comment"># People aged 28 or older</span>
+df[df[<span class="string">'Age'</span>] >= <span class="number">28</span>]
+
+<span class="comment"># Combining multiple conditions (AND: &, OR: |)</span>
+df[(df[<span class="string">'Age'</span>] >= <span class="number">25</span>) & (df[<span class="string">'City'</span>] == <span class="string">'Seoul'</span>)]
+
+<span class="comment"># isin(): Select if value matches any in the list</span>
+df[df[<span class="string">'City'</span>].<span class="function">isin</span>([<span class="string">'Seoul'</span>, <span class="string">'Busan'</span>])]
+
+<span class="comment"># String contains</span>
+df[df[<span class="string">'Name'</span>].str.<span class="function">contains</span>(<span class="string">'Kim'</span>)]
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#f3e8ff;color:var(--day2)">4</span> Sorting</h3>
+            <p class="description">Sort data in ascending or descending order by a specific column.</p>
+            <div class="code-block">
+<span class="comment"># Sort by Age in ascending order</span>
+df.<span class="function">sort_values</span>(<span class="string">'Age'</span>)
+
+<span class="comment"># Sort in descending order</span>
+df.<span class="function">sort_values</span>(<span class="string">'Age'</span>, ascending=<span class="keyword">False</span>)
+
+<span class="comment"># Sort by multiple columns</span>
+df.<span class="function">sort_values</span>([<span class="string">'City'</span>, <span class="string">'Age'</span>], ascending=[<span class="keyword">True</span>, <span class="keyword">False</span>])
+
+<span class="comment"># Sort by index</span>
+df.<span class="function">sort_index</span>()
+            </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="video-section">
+            <h3>&#9654; Recommended YouTube Lectures</h3>
+            <div class="video-grid">
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/kdiO27ZuZJw" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas Basics - Creating DataFrames & Importing Data</div>
+                        <div class="video-channel">Pandas Basics Series [2/29]</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/ulpYdFcuSGQ" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas Warm-up II - A Taste of Pandas Operations</div>
+                        <div class="video-channel">Free Pandas for Data Analysis Course</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/f7rJEQy9yd0" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas Lecture - Creating DataFrames</div>
+                        <div class="video-channel">Minsuk Heo</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="checklist-section">
+            <h3>&#9745; Day 2 Learning Checklist</h3>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d2-1" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Practice column selection<span class="sub">Practice selecting single and multiple columns</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d2-2" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Understand & practice loc vs iloc<span class="sub">Compare label-based vs position-based indexing</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d2-3" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Practice conditional filtering<span class="sub">Filter data with single and compound conditions (&, |)</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d2-4" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Practice sorting with sort_values()<span class="sub">Try ascending, descending, and multi-column sorting</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d2-5" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Watch at least 1 recommended YouTube lecture</span>
+            </label>
+            <div class="tip-box">
+                <strong>Tip!</strong>
+                If loc vs iloc is confusing, remember: <strong>loc</strong> = <strong>l</strong>abel-based, <strong>iloc</strong> = <strong>i</strong>nteger position-based!
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DAY 3 ==================== -->
+    <div class="day-panel" data-day="3">
+        <div class="day-header">
+            <span class="day-label">DAY 3</span>
+            <h2>Data Manipulation & Preprocessing</h2>
+            <p>Learn the most commonly used real-world skills: adding/deleting data, handling missing values, and type conversion.</p>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fce7f3;color:var(--day3)">1</span> Adding & Deleting Columns</h3>
+            <p class="description">How to add new columns to a DataFrame or delete existing ones.</p>
+            <div class="code-block">
+<span class="comment"># Add a new column</span>
+df[<span class="string">'Score'</span>] = [<span class="number">85</span>, <span class="number">92</span>, <span class="number">78</span>]
+
+<span class="comment"># Add a new column via calculation</span>
+df[<span class="string">'Passed'</span>] = df[<span class="string">'Score'</span>] >= <span class="number">80</span>
+
+<span class="comment"># Delete a column</span>
+df = df.<span class="function">drop</span>(<span class="string">'Passed'</span>, axis=<span class="number">1</span>)
+
+<span class="comment"># Delete a row</span>
+df = df.<span class="function">drop</span>(<span class="number">0</span>, axis=<span class="number">0</span>)  <span class="comment"># Delete row at index 0</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fce7f3;color:var(--day3)">2</span> Handling Missing Values (NaN)</h3>
+            <p class="description">Real-world data often contains missing values (NaN). Learn how to find and handle them.</p>
+            <div class="code-block">
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="comment"># Check for missing values</span>
+df.<span class="function">isnull</span>()           <span class="comment"># Shows True/False</span>
+df.<span class="function">isnull</span>().<span class="function">sum</span>()     <span class="comment"># Count of missing values per column</span>
+
+<span class="comment"># Drop missing values</span>
+df.<span class="function">dropna</span>()            <span class="comment"># Drop rows with missing values</span>
+df.<span class="function">dropna</span>(axis=<span class="number">1</span>)     <span class="comment"># Drop columns with missing values</span>
+
+<span class="comment"># Fill missing values</span>
+df[<span class="string">'Age'</span>].<span class="function">fillna</span>(<span class="number">0</span>)                <span class="comment"># Fill with 0</span>
+df[<span class="string">'Age'</span>].<span class="function">fillna</span>(df[<span class="string">'Age'</span>].<span class="function">mean</span>())  <span class="comment"># Fill with mean value</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fce7f3;color:var(--day3)">3</span> Data Type Conversion</h3>
+            <p class="description">How to convert column data types. Useful when numbers are stored as strings, etc.</p>
+            <div class="code-block">
+<span class="comment"># Check data types</span>
+df.<span class="function">dtypes</span>
+
+<span class="comment"># Convert types</span>
+df[<span class="string">'Age'</span>] = df[<span class="string">'Age'</span>].<span class="function">astype</span>(<span class="string">'float'</span>)
+df[<span class="string">'Score'</span>] = df[<span class="string">'Score'</span>].<span class="function">astype</span>(<span class="string">'int'</span>)
+
+<span class="comment"># String -> Date conversion</span>
+df[<span class="string">'Date'</span>] = pd.<span class="function">to_datetime</span>(df[<span class="string">'Date'</span>])
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fce7f3;color:var(--day3)">4</span> Modifying Values & apply()</h3>
+            <p class="description">Change specific values or transform data by applying functions.</p>
+            <div class="code-block">
+<span class="comment"># Change a specific value</span>
+df.<span class="function">loc</span>[<span class="number">0</span>, <span class="string">'Name'</span>] = <span class="string">'Kim Youngsu'</span>
+
+<span class="comment"># Replace values with replace()</span>
+df[<span class="string">'City'</span>].<span class="function">replace</span>(<span class="string">'Seoul'</span>, <span class="string">'Sejong'</span>)
+
+<span class="comment"># apply() - Apply a function</span>
+df[<span class="string">'Age_Group'</span>] = df[<span class="string">'Age'</span>].<span class="function">apply</span>(
+    <span class="keyword">lambda</span> x: <span class="string">'Young'</span> <span class="keyword">if</span> x < <span class="number">30</span> <span class="keyword">else</span> <span class="string">'Senior'</span>
+)
+
+<span class="comment"># map() - Dictionary mapping</span>
+city_map = {<span class="string">'Seoul'</span>: <span class="string">'Capital'</span>, <span class="string">'Busan'</span>: <span class="string">'Southeast'</span>}
+df[<span class="string">'Region'</span>] = df[<span class="string">'City'</span>].<span class="function">map</span>(city_map)
+            </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="video-section">
+            <h3>&#9654; Recommended YouTube Lectures</h3>
+            <div class="video-grid">
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/SfKJH0f8uLI" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">First Steps in Data Analysis with Pandas - Intro</div>
+                        <div class="video-channel">Covers preprocessing, NaN, sorting, insert, delete</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/2XLQhMOjecc" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Python Pandas Key Functions & Features Summary</div>
+                        <div class="video-channel">Machine Learning Lecture Series</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/q4UFSZPjLyo" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Python Pandas Real-World Data Analysis Part 1</div>
+                        <div class="video-channel">Series / DataFrame Hands-on Practice</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="checklist-section">
+            <h3>&#9745; Day 3 Learning Checklist</h3>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d3-1" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Practice adding & deleting columns<span class="sub">Add new columns and use drop() to delete columns/rows</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d3-2" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Check & handle missing values<span class="sub">Practice with isnull(), dropna(), fillna()</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d3-3" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Data type conversion<span class="sub">Practice using astype() and to_datetime()</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d3-4" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Practice apply() and map()<span class="sub">Transform values using lambda functions and dictionary mapping</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d3-5" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Watch at least 1 recommended YouTube lecture</span>
+            </label>
+            <div class="tip-box">
+                <strong>Tip!</strong>
+                Handling missing values is one of the most important steps in data analysis. Instead of always deleting them, consider filling with the mean or median!
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DAY 4 ==================== -->
+    <div class="day-panel" data-day="4">
+        <div class="day-header">
+            <span class="day-label">DAY 4</span>
+            <h2>GroupBy & Statistical Analysis</h2>
+            <p>Analyze data by groups and use various statistical functions and pivot tables.</p>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fef3c7;color:var(--day4)">1</span> GroupBy</h3>
+            <p class="description">Split data into groups based on a column and perform aggregate operations on each group.</p>
+            <div class="code-block">
+<span class="comment"># Sample data</span>
+data = {
+    <span class="string">'Department'</span>: [<span class="string">'Sales'</span>, <span class="string">'Engineering'</span>, <span class="string">'Sales'</span>, <span class="string">'Engineering'</span>, <span class="string">'Sales'</span>],
+    <span class="string">'Name'</span>: [<span class="string">'Kim Cheolsu'</span>, <span class="string">'Lee Younghee'</span>, <span class="string">'Park Minsu'</span>, <span class="string">'Choi Jieun'</span>, <span class="string">'Han Donghoon'</span>],
+    <span class="string">'Salary'</span>: [<span class="number">5000</span>, <span class="number">6000</span>, <span class="number">4500</span>, <span class="number">7000</span>, <span class="number">5500</span>]
+}
+df = pd.<span class="function">DataFrame</span>(data)
+
+<span class="comment"># Average salary by department</span>
+df.<span class="function">groupby</span>(<span class="string">'Department'</span>)[<span class="string">'Salary'</span>].<span class="function">mean</span>()
+
+<span class="comment"># Multiple statistics by department</span>
+df.<span class="function">groupby</span>(<span class="string">'Department'</span>)[<span class="string">'Salary'</span>].<span class="function">agg</span>([<span class="string">'mean'</span>, <span class="string">'sum'</span>, <span class="string">'count'</span>, <span class="string">'max'</span>])
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fef3c7;color:var(--day4)">2</span> Statistical Functions</h3>
+            <p class="description">Various functions to compute basic statistics on your data.</p>
+            <div class="code-block">
+df[<span class="string">'Salary'</span>].<span class="function">mean</span>()      <span class="comment"># Mean</span>
+df[<span class="string">'Salary'</span>].<span class="function">median</span>()    <span class="comment"># Median</span>
+df[<span class="string">'Salary'</span>].<span class="function">std</span>()       <span class="comment"># Standard deviation</span>
+df[<span class="string">'Salary'</span>].<span class="function">min</span>()       <span class="comment"># Minimum</span>
+df[<span class="string">'Salary'</span>].<span class="function">max</span>()       <span class="comment"># Maximum</span>
+df[<span class="string">'Salary'</span>].<span class="function">sum</span>()       <span class="comment"># Sum</span>
+df[<span class="string">'Department'</span>].<span class="function">value_counts</span>()  <span class="comment"># Count per value</span>
+df[<span class="string">'Department'</span>].<span class="function">nunique</span>()        <span class="comment"># Number of unique values</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fef3c7;color:var(--day4)">3</span> Pivot Tables & Crosstabs</h3>
+            <p class="description">Summarize data just like Excel's pivot table feature.</p>
+            <div class="code-block">
+<span class="comment"># Pivot table</span>
+pd.<span class="function">pivot_table</span>(
+    df,
+    values=<span class="string">'Salary'</span>,
+    index=<span class="string">'Department'</span>,
+    aggfunc=<span class="string">'mean'</span>
+)
+
+<span class="comment"># Crosstab</span>
+pd.<span class="function">crosstab</span>(df[<span class="string">'Department'</span>], df[<span class="string">'Position'</span>])
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fef3c7;color:var(--day4)">4</span> Merging Data (Merge & Concat)</h3>
+            <p class="description">How to combine multiple DataFrames into one.</p>
+            <div class="code-block">
+<span class="comment"># concat: Simple concatenation</span>
+pd.<span class="function">concat</span>([df1, df2])               <span class="comment"># Row-wise (vertical)</span>
+pd.<span class="function">concat</span>([df1, df2], axis=<span class="number">1</span>)       <span class="comment"># Column-wise (horizontal)</span>
+
+<span class="comment"># merge: Join on a common key (similar to SQL JOIN)</span>
+pd.<span class="function">merge</span>(df1, df2, on=<span class="string">'Name'</span>)                    <span class="comment"># Inner join</span>
+pd.<span class="function">merge</span>(df1, df2, on=<span class="string">'Name'</span>, how=<span class="string">'left'</span>)         <span class="comment"># Left join</span>
+pd.<span class="function">merge</span>(df1, df2, on=<span class="string">'Name'</span>, how=<span class="string">'outer'</span>)        <span class="comment"># Outer join</span>
+            </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="video-section">
+            <h3>&#9654; Recommended YouTube Lectures</h3>
+            <div class="video-grid">
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/5ZiP4HRFBqU" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Practical Pandas - Python Data Analysis</div>
+                        <div class="video-channel">Includes GroupBy and statistical analysis</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/1O3aAdM5ATA" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas Fundamentals for Data Analysis</div>
+                        <div class="video-channel">Python Quant Lecture 3</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/3JjniA5BXu4" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Understanding & Practicing Python Pandas DataFrames</div>
+                        <div class="video-channel">Advanced DataFrame Topics</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="checklist-section">
+            <h3>&#9745; Day 4 Learning Checklist</h3>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d4-1" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Practice groupby() basics<span class="sub">Aggregate by department/category: mean, sum, etc.</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d4-2" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Use agg() for multiple statistics at once<span class="sub">Apply mean, sum, count, max, etc. all at once</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d4-3" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Create a pivot table<span class="sub">Summarize data using the pivot_table() function</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d4-4" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Practice merge() and concat()<span class="sub">Merge/concatenate two DataFrames</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d4-5" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Watch at least 1 recommended YouTube lecture</span>
+            </label>
+            <div class="tip-box">
+                <strong>Tip!</strong>
+                groupby() is similar to pivot tables in Excel. Whenever you need to "calculate X by Y," use groupby!
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DAY 5 ==================== -->
+    <div class="day-panel" data-day="5">
+        <div class="day-header">
+            <span class="day-label">DAY 5</span>
+            <h2>Visualization & Real-World Project</h2>
+            <p>Visualize data with Pandas and Matplotlib, and complete a real-world data analysis project.</p>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#d1fae5;color:var(--day5)">1</span> Built-in Pandas Visualization</h3>
+            <p class="description">Pandas can easily create charts using .plot().</p>
+            <div class="code-block">
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+
+<span class="comment"># Bar chart</span>
+df[<span class="string">'Salary'</span>].<span class="function">plot</span>(kind=<span class="string">'bar'</span>)
+plt.<span class="function">title</span>(<span class="string">'Salary by Employee'</span>)
+plt.<span class="function">show</span>()
+
+<span class="comment"># Line chart</span>
+df.<span class="function">plot</span>(x=<span class="string">'Date'</span>, y=<span class="string">'Sales'</span>, kind=<span class="string">'line'</span>)
+
+<span class="comment"># Histogram</span>
+df[<span class="string">'Age'</span>].<span class="function">plot</span>(kind=<span class="string">'hist'</span>, bins=<span class="number">10</span>)
+
+<span class="comment"># Pie chart</span>
+df[<span class="string">'Department'</span>].<span class="function">value_counts</span>().<span class="function">plot</span>(kind=<span class="string">'pie'</span>, autopct=<span class="string">'%1.1f%%'</span>)
+
+<span class="comment"># Scatter plot</span>
+df.<span class="function">plot</span>(x=<span class="string">'Age'</span>, y=<span class="string">'Salary'</span>, kind=<span class="string">'scatter'</span>)
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#d1fae5;color:var(--day5)">2</span> Matplotlib Customization</h3>
+            <p class="description">How to make your charts look even better.</p>
+            <div class="code-block">
+<span class="comment"># Font settings (macOS)</span>
+plt.rcParams[<span class="string">'font.family'</span>] = <span class="string">'AppleGothic'</span>
+<span class="comment"># Font settings (Windows)</span>
+plt.rcParams[<span class="string">'font.family'</span>] = <span class="string">'Malgun Gothic'</span>
+
+<span class="comment"># Customize chart</span>
+fig, ax = plt.<span class="function">subplots</span>(figsize=(<span class="number">10</span>, <span class="number">6</span>))
+df.<span class="function">groupby</span>(<span class="string">'Department'</span>)[<span class="string">'Salary'</span>].<span class="function">mean</span>().<span class="function">plot</span>(
+    kind=<span class="string">'bar'</span>, color=[<span class="string">'#6366f1'</span>, <span class="string">'#ec4899'</span>], ax=ax
+)
+ax.<span class="function">set_title</span>(<span class="string">'Average Salary by Department'</span>, fontsize=<span class="number">16</span>)
+ax.<span class="function">set_xlabel</span>(<span class="string">'Department'</span>)
+ax.<span class="function">set_ylabel</span>(<span class="string">'Salary'</span>)
+plt.<span class="function">tight_layout</span>()
+plt.<span class="function">show</span>()
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#d1fae5;color:var(--day5)">3</span> File Input/Output</h3>
+            <p class="description">Load and save data in various formats including CSV, Excel, and more.</p>
+            <div class="code-block">
+<span class="comment"># CSV files</span>
+df = pd.<span class="function">read_csv</span>(<span class="string">'data.csv'</span>, encoding=<span class="string">'utf-8'</span>)
+df.<span class="function">to_csv</span>(<span class="string">'output.csv'</span>, index=<span class="keyword">False</span>)
+
+<span class="comment"># Excel files</span>
+df = pd.<span class="function">read_excel</span>(<span class="string">'data.xlsx'</span>, sheet_name=<span class="string">'Sheet1'</span>)
+df.<span class="function">to_excel</span>(<span class="string">'output.xlsx'</span>, index=<span class="keyword">False</span>)
+
+<span class="comment"># JSON files</span>
+df = pd.<span class="function">read_json</span>(<span class="string">'data.json'</span>)
+df.<span class="function">to_json</span>(<span class="string">'output.json'</span>)
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#d1fae5;color:var(--day5)">4</span> Real-World Mini Project</h3>
+            <p class="description">Put together everything you learned over 5 days to analyze real data!</p>
+            <div class="code-block">
+<span class="comment"># Real-world project: Sales data analysis</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+
+<span class="comment"># 1. Load data</span>
+df = pd.<span class="function">read_csv</span>(<span class="string">'sales.csv'</span>)
+
+<span class="comment"># 2. Explore data</span>
+<span class="keyword">print</span>(df.<span class="function">head</span>())
+<span class="keyword">print</span>(df.<span class="function">info</span>())
+<span class="keyword">print</span>(df.<span class="function">describe</span>())
+
+<span class="comment"># 3. Handle missing values</span>
+df = df.<span class="function">dropna</span>()
+
+<span class="comment"># 4. Analyze sales by category</span>
+category_sales = df.<span class="function">groupby</span>(<span class="string">'Category'</span>)[<span class="string">'Sales'</span>].<span class="function">sum</span>()
+
+<span class="comment"># 5. Visualize</span>
+category_sales.<span class="function">plot</span>(kind=<span class="string">'bar'</span>)
+plt.<span class="function">title</span>(<span class="string">'Total Sales by Category'</span>)
+plt.<span class="function">show</span>()
+
+<span class="comment"># 6. Save results</span>
+category_sales.<span class="function">to_csv</span>(<span class="string">'result.csv'</span>)
+            </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="video-section">
+            <h3>&#9654; Recommended YouTube Lectures</h3>
+            <div class="video-grid">
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/9PF4BAFh-J8" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas Essentials - Python Data Analysis</div>
+                        <div class="video-channel">Comprehensive lecture including visualization</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/ddSR4xAjAww" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Loading and Summarizing Data with Pandas</div>
+                        <div class="video-channel">Public dataset analysis practice</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/-hpiY401r-M" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Data Analysis with Python - Learn Pandas Properly</div>
+                        <div class="video-channel">HD Comprehensive Lecture</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="checklist-section">
+            <h3>&#9745; Day 5 Learning Checklist</h3>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d5-1" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Draw basic charts with .plot()<span class="sub">Create at least 3 of: bar, line, histogram, pie, scatter</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d5-2" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Customize charts with Matplotlib<span class="sub">Customize titles, labels, colors, and sizes</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d5-3" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Practice CSV read/write<span class="sub">Use read_csv() and to_csv()</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d5-4" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Complete the mini project<span class="sub">Load real data (CSV) -> Explore -> Preprocess -> Analyze -> Visualize</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d5-5" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Watch at least 1 recommended YouTube lecture</span>
+            </label>
+            <div class="tip-box">
+                <strong>Tip!</strong>
+                You can download free datasets from Kaggle (kaggle.com) to practice. Start with popular datasets like "titanic" or "iris"!
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p>Pandas 101 - 5-Day Mastery Plan | You got this!</p>
+</footer>
+
+<script>
+    // Tab navigation
+    function showDay(day) {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
+        document.querySelector(`.nav-tab[data-day="${day}"]`).classList.add('active');
+        document.querySelector(`.day-panel[data-day="${day}"]`).classList.add('active');
+    }
+
+    // Save/Load progress with localStorage
+    function saveProgress() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const state = {};
+        checkboxes.forEach(cb => {
+            state[cb.dataset.id] = cb.checked;
+        });
+        localStorage.setItem('pandas101_en_progress', JSON.stringify(state));
+        updateProgressBar();
+    }
+
+    function loadProgress() {
+        const saved = localStorage.getItem('pandas101_en_progress');
+        if (saved) {
+            const state = JSON.parse(saved);
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                if (state[cb.dataset.id]) {
+                    cb.checked = true;
+                }
+            });
+        }
+        updateProgressBar();
+    }
+
+    function updateProgressBar() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const total = checkboxes.length;
+        const checked = document.querySelectorAll('input[type="checkbox"]:checked').length;
+        const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
+
+        document.getElementById('progressPercent').textContent = percent + '%';
+        document.getElementById('progressFill').style.width = percent + '%';
+    }
+
+    function resetAll() {
+        if (confirm('Reset all progress?')) {
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            localStorage.removeItem('pandas101_en_progress');
+            updateProgressBar();
+        }
+    }
+
+    // Initialize
+    loadProgress();
+</script>
+
+</body>
+</html>
