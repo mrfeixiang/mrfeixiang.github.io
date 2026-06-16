@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pandas 101 - 5일 완성 학습 플랜</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --accent: #ff6d00;
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #1a1a2e;
+            --text-light: #5a6377;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --day1: #6366f1;
+            --day2: #8b5cf6;
+            --day3: #ec4899;
+            --day4: #f59e0b;
+            --day5: #10b981;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+            position: relative;
+            letter-spacing: -1px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(90deg, #ffd700, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero .subtitle {
+            margin-top: 20px;
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            max-width: 900px;
+            margin: -30px auto 0;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .progress-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-header h3 {
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+
+        .progress-header .percent {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2, #ec4899);
+            border-radius: 6px;
+            transition: width 0.6s ease;
+            width: 0%;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            max-width: 900px;
+            margin: 30px auto 0;
+            padding: 0 20px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-tab {
+            padding: 10px 22px;
+            border-radius: 30px;
+            border: 2px solid var(--border);
+            background: var(--card);
+            cursor: pointer;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            color: var(--text-light);
+        }
+
+        .nav-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .nav-tab.active {
+            color: white;
+            border-color: transparent;
+        }
+
+        .nav-tab[data-day="1"].active { background: var(--day1); }
+        .nav-tab[data-day="2"].active { background: var(--day2); }
+        .nav-tab[data-day="3"].active { background: var(--day3); }
+        .nav-tab[data-day="4"].active { background: var(--day4); }
+        .nav-tab[data-day="5"].active { background: var(--day5); }
+
+        /* Day Content */
+        .content-area {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px 60px;
+        }
+
+        .day-panel {
+            display: none;
+        }
+
+        .day-panel.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .day-header {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border-left: 5px solid;
+        }
+
+        .day-panel[data-day="1"] .day-header { border-color: var(--day1); }
+        .day-panel[data-day="2"] .day-header { border-color: var(--day2); }
+        .day-panel[data-day="3"] .day-header { border-color: var(--day3); }
+        .day-panel[data-day="4"] .day-header { border-color: var(--day4); }
+        .day-panel[data-day="5"] .day-header { border-color: var(--day5); }
+
+        .day-header .day-label {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .day-panel[data-day="1"] .day-label { background: var(--day1); }
+        .day-panel[data-day="2"] .day-label { background: var(--day2); }
+        .day-panel[data-day="3"] .day-label { background: var(--day3); }
+        .day-panel[data-day="4"] .day-label { background: var(--day4); }
+        .day-panel[data-day="5"] .day-label { background: var(--day5); }
+
+        .day-header h2 {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+
+        .day-header p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Topic Cards */
+        .topic-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        .topic-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topic-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .topic-card .description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            padding-left: 40px;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .code-block .comment { color: #94a3b8; }
+        .code-block .keyword { color: #c084fc; }
+        .code-block .string { color: #86efac; }
+        .code-block .function { color: #67e8f9; }
+        .code-block .number { color: #fbbf24; }
+
+        /* YouTube Section */
+        .video-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        .video-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: #dc2626;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .video-item {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .video-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .video-item iframe {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border: none;
+            display: block;
+        }
+
+        .video-item .video-info {
+            padding: 12px 14px;
+        }
+
+        .video-item .video-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .video-item .video-channel {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Checklist / To-Do */
+        .checklist-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        .checklist-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .checklist-item:hover {
+            background: #f8fafc;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .checkmark svg {
+            width: 14px;
+            height: 14px;
+            fill: none;
+            stroke: white;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .checklist-item input:checked + .checkmark {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .checklist-item input:checked + .checkmark svg {
+            opacity: 1;
+        }
+
+        .checklist-item input:checked ~ .check-label {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+
+        .check-label {
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .check-label .sub {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        /* Tips */
+        .tip-box {
+            background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 12px;
+            font-size: 0.88rem;
+            color: #1e40af;
+        }
+
+        .tip-box strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        /* Reset button */
+        .reset-btn {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 18px;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #e2e8f0;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            .nav-tab { padding: 8px 16px; font-size: 0.8rem; }
+            .day-header h2 { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+    <h1><span>Pandas 101</span></h1>
+    <p>파이썬 데이터 분석의 핵심, 판다스를 5일 만에 마스터하세요</p>
+    <div class="subtitle">Day 1 ~ Day 5 | 유튜브 강의 + 실습 체크리스트</div>
+</section>
+
+<!-- Progress -->
+<section class="progress-section">
+    <div class="progress-card">
+        <div class="progress-header">
+            <h3>전체 학습 진행률</h3>
+            <span class="percent" id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <button class="reset-btn" onclick="resetAll()">진행률 초기화</button>
+    </div>
+</section>
+
+<!-- Nav Tabs -->
+<nav class="nav-tabs">
+    <button class="nav-tab active" data-day="1" onclick="showDay(1)">Day 1</button>
+    <button class="nav-tab" data-day="2" onclick="showDay(2)">Day 2</button>
+    <button class="nav-tab" data-day="3" onclick="showDay(3)">Day 3</button>
+    <button class="nav-tab" data-day="4" onclick="showDay(4)">Day 4</button>
+    <button class="nav-tab" data-day="5" onclick="showDay(5)">Day 5</button>
+</nav>
+
+<!-- Content -->
+<main class="content-area">
+
+    <!-- ==================== DAY 1 ==================== -->
+    <div class="day-panel active" data-day="1">
+        <div class="day-header">
+            <span class="day-label">DAY 1</span>
+            <h2>Pandas 소개 & 기본 자료구조</h2>
+            <p>Pandas가 무엇인지 이해하고, 핵심 자료구조인 Series와 DataFrame을 배웁니다.</p>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#eef2ff;color:var(--day1)">1</span> Pandas란?</h3>
+            <p class="description">Pandas는 파이썬에서 데이터를 쉽게 다루기 위한 라이브러리입니다. 엑셀처럼 표(테이블) 형태의 데이터를 다룰 수 있어요.</p>
+            <div class="code-block">
+<span class="comment"># pandas 설치</span>
+<span class="keyword">pip install</span> pandas
+
+<span class="comment"># pandas 불러오기</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">print</span>(pd.__version__)
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#eef2ff;color:var(--day1)">2</span> Series (시리즈)</h3>
+            <p class="description">Series는 1차원 배열 같은 자료구조입니다. 인덱스(index)와 값(value)으로 이루어져 있어요.</p>
+            <div class="code-block">
+<span class="comment"># 리스트로 Series 만들기</span>
+s = pd.<span class="function">Series</span>([<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>])
+<span class="keyword">print</span>(s)
+
+<span class="comment"># 인덱스 지정하기</span>
+s = pd.<span class="function">Series</span>([<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>], index=[<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>])
+<span class="keyword">print</span>(s[<span class="string">'b'</span>])  <span class="comment"># 20</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#eef2ff;color:var(--day1)">3</span> DataFrame (데이터프레임)</h3>
+            <p class="description">DataFrame은 2차원 표(테이블) 형태의 자료구조입니다. 행(row)과 열(column)로 이루어져 있어요.</p>
+            <div class="code-block">
+<span class="comment"># 딕셔너리로 DataFrame 만들기</span>
+data = {
+    <span class="string">'이름'</span>: [<span class="string">'김철수'</span>, <span class="string">'이영희'</span>, <span class="string">'박민수'</span>],
+    <span class="string">'나이'</span>: [<span class="number">25</span>, <span class="number">30</span>, <span class="number">28</span>],
+    <span class="string">'도시'</span>: [<span class="string">'서울'</span>, <span class="string">'부산'</span>, <span class="string">'대전'</span>]
+}
+df = pd.<span class="function">DataFrame</span>(data)
+<span class="keyword">print</span>(df)
+
+<span class="comment"># 결과:</span>
+<span class="comment">#    이름  나이  도시</span>
+<span class="comment"># 0  김철수  25  서울</span>
+<span class="comment"># 1  이영희  30  부산</span>
+<span class="comment"># 2  박민수  28  대전</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#eef2ff;color:var(--day1)">4</span> 기본 탐색 함수</h3>
+            <p class="description">DataFrame의 구조와 내용을 빠르게 파악하는 기본 함수들입니다.</p>
+            <div class="code-block">
+df.<span class="function">head</span>()       <span class="comment"># 처음 5행 보기</span>
+df.<span class="function">tail</span>()       <span class="comment"># 마지막 5행 보기</span>
+df.<span class="function">shape</span>        <span class="comment"># (행 수, 열 수)</span>
+df.<span class="function">info</span>()       <span class="comment"># 데이터 타입 등 정보</span>
+df.<span class="function">describe</span>()   <span class="comment"># 기본 통계 요약</span>
+df.<span class="function">columns</span>      <span class="comment"># 열 이름 목록</span>
+df.<span class="function">dtypes</span>       <span class="comment"># 각 열의 데이터 타입</span>
+            </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="video-section">
+            <h3>&#9654; 추천 유튜브 강의</h3>
+            <div class="video-grid">
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/8LfmKMw1dcs" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">판다스 워밍업 I - 판다스(pandas)의 자료 구조</div>
+                        <div class="video-channel">데이터 분석을 위한 판다스 무료 강의</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/pFXipjh0ghw" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">팬더스, 데이터프레임, 시리즈 알아보기</div>
+                        <div class="video-channel">Minsuk Heo 허민석</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/lspu830SzC8" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">판다스 10분 완성 소개 & 데이터프레임 만들기</div>
+                        <div class="video-channel">Pandas 기초 시리즈 [1/29]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="checklist-section">
+            <h3>&#9745; Day 1 학습 체크리스트</h3>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d1-1" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Pandas 설치 및 import 확인<span class="sub">pip install pandas 실행 후 import pandas as pd 테스트</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d1-2" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Series 생성 실습<span class="sub">리스트, 딕셔너리로 Series를 만들고 인덱싱 해보기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d1-3" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">DataFrame 생성 실습<span class="sub">딕셔너리로 DataFrame 만들고 head(), info() 등 사용해보기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d1-4" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">추천 유튜브 강의 1개 이상 시청<span class="sub">위의 영상 중 최소 1개 시청하기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d1-5" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">CSV 파일 불러오기 연습<span class="sub">pd.read_csv('파일명.csv')로 외부 데이터 불러오기</span></span>
+            </label>
+            <div class="tip-box">
+                <strong>Tip!</strong>
+                Jupyter Notebook이나 Google Colab에서 실습하면 결과를 바로 확인할 수 있어서 학습에 효과적입니다.
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DAY 2 ==================== -->
+    <div class="day-panel" data-day="2">
+        <div class="day-header">
+            <span class="day-label">DAY 2</span>
+            <h2>데이터 선택 & 인덱싱</h2>
+            <p>원하는 행과 열을 자유롭게 선택하고, 조건에 맞는 데이터를 필터링하는 방법을 배웁니다.</p>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#f3e8ff;color:var(--day2)">1</span> 열(Column) 선택</h3>
+            <p class="description">DataFrame에서 원하는 열을 선택하는 여러 가지 방법입니다.</p>
+            <div class="code-block">
+<span class="comment"># 단일 열 선택 (Series 반환)</span>
+df[<span class="string">'이름'</span>]
+
+<span class="comment"># 여러 열 선택 (DataFrame 반환)</span>
+df[[<span class="string">'이름'</span>, <span class="string">'나이'</span>]]
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#f3e8ff;color:var(--day2)">2</span> loc & iloc 인덱싱</h3>
+            <p class="description">loc는 라벨(이름) 기반, iloc는 정수(위치) 기반으로 데이터를 선택합니다.</p>
+            <div class="code-block">
+<span class="comment"># loc: 라벨 기반 인덱싱</span>
+df.<span class="function">loc</span>[<span class="number">0</span>, <span class="string">'이름'</span>]            <span class="comment"># 0번 행의 '이름' 열</span>
+df.<span class="function">loc</span>[<span class="number">0</span>:<span class="number">2</span>, [<span class="string">'이름'</span>, <span class="string">'나이'</span>]]   <span class="comment"># 0~2행, 이름&나이 열</span>
+
+<span class="comment"># iloc: 정수(위치) 기반 인덱싱</span>
+df.<span class="function">iloc</span>[<span class="number">0</span>, <span class="number">0</span>]                <span class="comment"># 0번째 행, 0번째 열</span>
+df.<span class="function">iloc</span>[<span class="number">0</span>:<span class="number">2</span>, <span class="number">0</span>:<span class="number">2</span>]             <span class="comment"># 0~1행, 0~1열</span>
+df.<span class="function">iloc</span>[:, <span class="number">1</span>]                <span class="comment"># 모든 행의 1번째 열</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#f3e8ff;color:var(--day2)">3</span> 조건 필터링</h3>
+            <p class="description">조건식을 사용하여 원하는 데이터만 추출합니다. 엑셀의 필터 기능과 비슷해요!</p>
+            <div class="code-block">
+<span class="comment"># 나이가 28 이상인 사람</span>
+df[df[<span class="string">'나이'</span>] >= <span class="number">28</span>]
+
+<span class="comment"># 여러 조건 결합 (AND: &, OR: |)</span>
+df[(df[<span class="string">'나이'</span>] >= <span class="number">25</span>) & (df[<span class="string">'도시'</span>] == <span class="string">'서울'</span>)]
+
+<span class="comment"># isin(): 여러 값 중 하나라도 포함되면 선택</span>
+df[df[<span class="string">'도시'</span>].<span class="function">isin</span>([<span class="string">'서울'</span>, <span class="string">'부산'</span>])]
+
+<span class="comment"># 문자열 포함 여부</span>
+df[df[<span class="string">'이름'</span>].str.<span class="function">contains</span>(<span class="string">'김'</span>)]
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#f3e8ff;color:var(--day2)">4</span> 정렬 (Sorting)</h3>
+            <p class="description">데이터를 특정 열 기준으로 오름차순/내림차순 정렬합니다.</p>
+            <div class="code-block">
+<span class="comment"># 나이 기준 오름차순 정렬</span>
+df.<span class="function">sort_values</span>(<span class="string">'나이'</span>)
+
+<span class="comment"># 내림차순 정렬</span>
+df.<span class="function">sort_values</span>(<span class="string">'나이'</span>, ascending=<span class="keyword">False</span>)
+
+<span class="comment"># 여러 열 기준 정렬</span>
+df.<span class="function">sort_values</span>([<span class="string">'도시'</span>, <span class="string">'나이'</span>], ascending=[<span class="keyword">True</span>, <span class="keyword">False</span>])
+
+<span class="comment"># 인덱스 기준 정렬</span>
+df.<span class="function">sort_index</span>()
+            </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="video-section">
+            <h3>&#9654; 추천 유튜브 강의</h3>
+            <div class="video-grid">
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/kdiO27ZuZJw" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas 기초 - 데이터프레임 생성하고 데이터 가져오기</div>
+                        <div class="video-channel">Pandas 기초 시리즈 [2/29]</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/ulpYdFcuSGQ" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">판다스 워밍업 II - 판다스의 연산 맛보기</div>
+                        <div class="video-channel">데이터 분석을 위한 판다스 무료 강의</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/f7rJEQy9yd0" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas 강의 - 데이터프레임 생성하기</div>
+                        <div class="video-channel">Minsuk Heo 허민석</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="checklist-section">
+            <h3>&#9745; Day 2 학습 체크리스트</h3>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d2-1" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">열 선택 실습<span class="sub">단일 열, 복수 열 선택 연습하기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d2-2" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">loc과 iloc 차이점 이해 & 실습<span class="sub">라벨 기반 vs 위치 기반 인덱싱 비교해보기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d2-3" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">조건 필터링 실습<span class="sub">단일 조건, 복합 조건(&, |)으로 데이터 필터링하기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d2-4" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">sort_values()로 정렬 실습<span class="sub">오름차순, 내림차순, 다중 컬럼 정렬 해보기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d2-5" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">추천 유튜브 강의 1개 이상 시청</span>
+            </label>
+            <div class="tip-box">
+                <strong>Tip!</strong>
+                loc vs iloc이 헷갈린다면: <strong>loc</strong> = <strong>l</strong>abel(라벨), <strong>iloc</strong> = <strong>i</strong>nteger(정수) 위치라고 기억하세요!
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DAY 3 ==================== -->
+    <div class="day-panel" data-day="3">
+        <div class="day-header">
+            <span class="day-label">DAY 3</span>
+            <h2>데이터 가공 & 전처리</h2>
+            <p>실무에서 가장 많이 쓰이는 데이터 추가, 삭제, 결측값 처리, 타입 변환을 배웁니다.</p>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fce7f3;color:var(--day3)">1</span> 열 추가 & 삭제</h3>
+            <p class="description">DataFrame에 새로운 열을 추가하거나 기존 열을 삭제하는 방법입니다.</p>
+            <div class="code-block">
+<span class="comment"># 새 열 추가</span>
+df[<span class="string">'점수'</span>] = [<span class="number">85</span>, <span class="number">92</span>, <span class="number">78</span>]
+
+<span class="comment"># 계산을 통한 새 열 추가</span>
+df[<span class="string">'합격여부'</span>] = df[<span class="string">'점수'</span>] >= <span class="number">80</span>
+
+<span class="comment"># 열 삭제</span>
+df = df.<span class="function">drop</span>(<span class="string">'합격여부'</span>, axis=<span class="number">1</span>)
+
+<span class="comment"># 행 삭제</span>
+df = df.<span class="function">drop</span>(<span class="number">0</span>, axis=<span class="number">0</span>)  <span class="comment"># 인덱스 0번 행 삭제</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fce7f3;color:var(--day3)">2</span> 결측값(NaN) 처리</h3>
+            <p class="description">실제 데이터에는 빈 값(NaN)이 자주 있습니다. 이를 찾고 처리하는 방법을 배웁니다.</p>
+            <div class="code-block">
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="comment"># 결측값 확인</span>
+df.<span class="function">isnull</span>()           <span class="comment"># True/False 표시</span>
+df.<span class="function">isnull</span>().<span class="function">sum</span>()     <span class="comment"># 열별 결측값 개수</span>
+
+<span class="comment"># 결측값 삭제</span>
+df.<span class="function">dropna</span>()            <span class="comment"># 결측값 있는 행 삭제</span>
+df.<span class="function">dropna</span>(axis=<span class="number">1</span>)     <span class="comment"># 결측값 있는 열 삭제</span>
+
+<span class="comment"># 결측값 채우기</span>
+df[<span class="string">'나이'</span>].<span class="function">fillna</span>(<span class="number">0</span>)                <span class="comment"># 0으로 채우기</span>
+df[<span class="string">'나이'</span>].<span class="function">fillna</span>(df[<span class="string">'나이'</span>].<span class="function">mean</span>())  <span class="comment"># 평균값으로 채우기</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fce7f3;color:var(--day3)">3</span> 데이터 타입 변환</h3>
+            <p class="description">열의 데이터 타입을 변환하는 방법입니다. 숫자가 문자로 저장된 경우 등에 유용합니다.</p>
+            <div class="code-block">
+<span class="comment"># 데이터 타입 확인</span>
+df.<span class="function">dtypes</span>
+
+<span class="comment"># 타입 변환</span>
+df[<span class="string">'나이'</span>] = df[<span class="string">'나이'</span>].<span class="function">astype</span>(<span class="string">'float'</span>)
+df[<span class="string">'점수'</span>] = df[<span class="string">'점수'</span>].<span class="function">astype</span>(<span class="string">'int'</span>)
+
+<span class="comment"># 문자열 -> 날짜 변환</span>
+df[<span class="string">'날짜'</span>] = pd.<span class="function">to_datetime</span>(df[<span class="string">'날짜'</span>])
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fce7f3;color:var(--day3)">4</span> 값 변경 & apply()</h3>
+            <p class="description">특정 값을 변경하거나, 함수를 적용하여 데이터를 변환합니다.</p>
+            <div class="code-block">
+<span class="comment"># 특정 값 변경</span>
+df.<span class="function">loc</span>[<span class="number">0</span>, <span class="string">'이름'</span>] = <span class="string">'김영수'</span>
+
+<span class="comment"># replace()로 값 바꾸기</span>
+df[<span class="string">'도시'</span>].<span class="function">replace</span>(<span class="string">'서울'</span>, <span class="string">'Seoul'</span>)
+
+<span class="comment"># apply() - 함수 적용</span>
+df[<span class="string">'나이_카테고리'</span>] = df[<span class="string">'나이'</span>].<span class="function">apply</span>(
+    <span class="keyword">lambda</span> x: <span class="string">'청년'</span> <span class="keyword">if</span> x < <span class="number">30</span> <span class="keyword">else</span> <span class="string">'중년'</span>
+)
+
+<span class="comment"># map() - 딕셔너리 매핑</span>
+city_map = {<span class="string">'서울'</span>: <span class="string">'수도권'</span>, <span class="string">'부산'</span>: <span class="string">'경상권'</span>}
+df[<span class="string">'권역'</span>] = df[<span class="string">'도시'</span>].<span class="function">map</span>(city_map)
+            </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="video-section">
+            <h3>&#9654; 추천 유튜브 강의</h3>
+            <div class="video-grid">
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/SfKJH0f8uLI" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">맨처음 데이터분석 판다스 - 입문 강의</div>
+                        <div class="video-channel">전처리, NaN, 정렬, 삽입, 삭제 포함</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/2XLQhMOjecc" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">파이썬 Pandas 주요 함수 및 기능 정리</div>
+                        <div class="video-channel">머신러닝 강의 시리즈</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/q4UFSZPjLyo" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Python Pandas 실무 데이터 분석 1탄</div>
+                        <div class="video-channel">Series / DataFrame 구조 실습</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="checklist-section">
+            <h3>&#9745; Day 3 학습 체크리스트</h3>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d3-1" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">열 추가 & 삭제 실습<span class="sub">새 열 추가, drop()으로 열/행 삭제하기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d3-2" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">결측값 확인 & 처리<span class="sub">isnull(), dropna(), fillna() 실습하기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d3-3" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">데이터 타입 변환<span class="sub">astype(), to_datetime() 사용해보기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d3-4" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">apply()와 map() 실습<span class="sub">lambda 함수와 딕셔너리 매핑으로 값 변환하기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d3-5" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">추천 유튜브 강의 1개 이상 시청</span>
+            </label>
+            <div class="tip-box">
+                <strong>Tip!</strong>
+                결측값 처리는 데이터 분석에서 가장 중요한 단계 중 하나입니다. 무조건 삭제보다는 평균/중앙값으로 채우는 것을 고려하세요!
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DAY 4 ==================== -->
+    <div class="day-panel" data-day="4">
+        <div class="day-header">
+            <span class="day-label">DAY 4</span>
+            <h2>GroupBy & 통계 분석</h2>
+            <p>데이터를 그룹별로 분석하고, 다양한 통계 함수와 피벗 테이블을 활용합니다.</p>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fef3c7;color:var(--day4)">1</span> GroupBy (그룹화)</h3>
+            <p class="description">특정 열을 기준으로 데이터를 그룹으로 나누고, 각 그룹에 대해 집계 연산을 수행합니다.</p>
+            <div class="code-block">
+<span class="comment"># 예시 데이터</span>
+data = {
+    <span class="string">'부서'</span>: [<span class="string">'영업'</span>, <span class="string">'개발'</span>, <span class="string">'영업'</span>, <span class="string">'개발'</span>, <span class="string">'영업'</span>],
+    <span class="string">'이름'</span>: [<span class="string">'김철수'</span>, <span class="string">'이영희'</span>, <span class="string">'박민수'</span>, <span class="string">'최지은'</span>, <span class="string">'한동훈'</span>],
+    <span class="string">'연봉'</span>: [<span class="number">5000</span>, <span class="number">6000</span>, <span class="number">4500</span>, <span class="number">7000</span>, <span class="number">5500</span>]
+}
+df = pd.<span class="function">DataFrame</span>(data)
+
+<span class="comment"># 부서별 평균 연봉</span>
+df.<span class="function">groupby</span>(<span class="string">'부서'</span>)[<span class="string">'연봉'</span>].<span class="function">mean</span>()
+
+<span class="comment"># 부서별 여러 통계</span>
+df.<span class="function">groupby</span>(<span class="string">'부서'</span>)[<span class="string">'연봉'</span>].<span class="function">agg</span>([<span class="string">'mean'</span>, <span class="string">'sum'</span>, <span class="string">'count'</span>, <span class="string">'max'</span>])
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fef3c7;color:var(--day4)">2</span> 통계 함수</h3>
+            <p class="description">데이터의 기본 통계량을 구하는 다양한 함수입니다.</p>
+            <div class="code-block">
+df[<span class="string">'연봉'</span>].<span class="function">mean</span>()      <span class="comment"># 평균</span>
+df[<span class="string">'연봉'</span>].<span class="function">median</span>()    <span class="comment"># 중앙값</span>
+df[<span class="string">'연봉'</span>].<span class="function">std</span>()       <span class="comment"># 표준편차</span>
+df[<span class="string">'연봉'</span>].<span class="function">min</span>()       <span class="comment"># 최솟값</span>
+df[<span class="string">'연봉'</span>].<span class="function">max</span>()       <span class="comment"># 최댓값</span>
+df[<span class="string">'연봉'</span>].<span class="function">sum</span>()       <span class="comment"># 합계</span>
+df[<span class="string">'부서'</span>].<span class="function">value_counts</span>()  <span class="comment"># 값별 개수</span>
+df[<span class="string">'부서'</span>].<span class="function">nunique</span>()        <span class="comment"># 고유값 개수</span>
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fef3c7;color:var(--day4)">3</span> 피벗 테이블 & 크로스탭</h3>
+            <p class="description">엑셀의 피벗 테이블처럼 데이터를 요약하는 방법입니다.</p>
+            <div class="code-block">
+<span class="comment"># 피벗 테이블</span>
+pd.<span class="function">pivot_table</span>(
+    df,
+    values=<span class="string">'연봉'</span>,
+    index=<span class="string">'부서'</span>,
+    aggfunc=<span class="string">'mean'</span>
+)
+
+<span class="comment"># 크로스탭 (교차표)</span>
+pd.<span class="function">crosstab</span>(df[<span class="string">'부서'</span>], df[<span class="string">'직급'</span>])
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#fef3c7;color:var(--day4)">4</span> 데이터 병합 (Merge & Concat)</h3>
+            <p class="description">여러 DataFrame을 하나로 합치는 방법입니다.</p>
+            <div class="code-block">
+<span class="comment"># concat: 단순 이어붙이기</span>
+pd.<span class="function">concat</span>([df1, df2])               <span class="comment"># 행 방향(위아래)</span>
+pd.<span class="function">concat</span>([df1, df2], axis=<span class="number">1</span>)       <span class="comment"># 열 방향(옆으로)</span>
+
+<span class="comment"># merge: 공통 키 기준 병합 (SQL JOIN과 유사)</span>
+pd.<span class="function">merge</span>(df1, df2, on=<span class="string">'이름'</span>)                    <span class="comment"># 내부 조인</span>
+pd.<span class="function">merge</span>(df1, df2, on=<span class="string">'이름'</span>, how=<span class="string">'left'</span>)         <span class="comment"># 왼쪽 조인</span>
+pd.<span class="function">merge</span>(df1, df2, on=<span class="string">'이름'</span>, how=<span class="string">'outer'</span>)        <span class="comment"># 외부 조인</span>
+            </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="video-section">
+            <h3>&#9654; 추천 유튜브 강의</h3>
+            <div class="video-grid">
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/5ZiP4HRFBqU" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas의 활용 - Python 데이터 분석</div>
+                        <div class="video-channel">GroupBy, 통계 분석 포함</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/1O3aAdM5ATA" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">데이터 분석을 위한 판다스 기초</div>
+                        <div class="video-channel">파이썬 퀀트 3강</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/3JjniA5BXu4" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">파이썬 판다스 데이터프레임 이해와 실습</div>
+                        <div class="video-channel">DataFrame 심화</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="checklist-section">
+            <h3>&#9745; Day 4 학습 체크리스트</h3>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d4-1" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">groupby() 기본 실습<span class="sub">부서별/카테고리별 평균, 합계 등 집계해보기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d4-2" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">agg()로 여러 통계 한번에 구하기<span class="sub">mean, sum, count, max 등을 한번에 적용하기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d4-3" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">피벗 테이블 만들기<span class="sub">pivot_table() 함수로 데이터 요약해보기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d4-4" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">merge()와 concat() 실습<span class="sub">두 개의 DataFrame을 병합/연결해보기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d4-5" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">추천 유튜브 강의 1개 이상 시청</span>
+            </label>
+            <div class="tip-box">
+                <strong>Tip!</strong>
+                groupby()는 엑셀의 피벗 테이블과 비슷합니다. "~별로 ~을 구하라"는 질문에 groupby를 사용하면 됩니다!
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== DAY 5 ==================== -->
+    <div class="day-panel" data-day="5">
+        <div class="day-header">
+            <span class="day-label">DAY 5</span>
+            <h2>시각화 & 실전 프로젝트</h2>
+            <p>Pandas와 Matplotlib으로 데이터를 시각화하고, 실전 데이터 분석 프로젝트를 수행합니다.</p>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#d1fae5;color:var(--day5)">1</span> Pandas 내장 시각화</h3>
+            <p class="description">Pandas는 .plot()으로 간단히 차트를 그릴 수 있습니다.</p>
+            <div class="code-block">
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+
+<span class="comment"># 막대 그래프</span>
+df[<span class="string">'연봉'</span>].<span class="function">plot</span>(kind=<span class="string">'bar'</span>)
+plt.<span class="function">title</span>(<span class="string">'직원별 연봉'</span>)
+plt.<span class="function">show</span>()
+
+<span class="comment"># 선 그래프</span>
+df.<span class="function">plot</span>(x=<span class="string">'날짜'</span>, y=<span class="string">'매출'</span>, kind=<span class="string">'line'</span>)
+
+<span class="comment"># 히스토그램</span>
+df[<span class="string">'나이'</span>].<span class="function">plot</span>(kind=<span class="string">'hist'</span>, bins=<span class="number">10</span>)
+
+<span class="comment"># 파이 차트</span>
+df[<span class="string">'부서'</span>].<span class="function">value_counts</span>().<span class="function">plot</span>(kind=<span class="string">'pie'</span>, autopct=<span class="string">'%1.1f%%'</span>)
+
+<span class="comment"># 산점도</span>
+df.<span class="function">plot</span>(x=<span class="string">'나이'</span>, y=<span class="string">'연봉'</span>, kind=<span class="string">'scatter'</span>)
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#d1fae5;color:var(--day5)">2</span> Matplotlib 커스터마이징</h3>
+            <p class="description">차트를 더 보기 좋게 꾸미는 방법입니다.</p>
+            <div class="code-block">
+<span class="comment"># 한글 폰트 설정 (맥OS)</span>
+plt.rcParams[<span class="string">'font.family'</span>] = <span class="string">'AppleGothic'</span>
+<span class="comment"># 한글 폰트 설정 (Windows)</span>
+plt.rcParams[<span class="string">'font.family'</span>] = <span class="string">'Malgun Gothic'</span>
+
+<span class="comment"># 차트 꾸미기</span>
+fig, ax = plt.<span class="function">subplots</span>(figsize=(<span class="number">10</span>, <span class="number">6</span>))
+df.<span class="function">groupby</span>(<span class="string">'부서'</span>)[<span class="string">'연봉'</span>].<span class="function">mean</span>().<span class="function">plot</span>(
+    kind=<span class="string">'bar'</span>, color=[<span class="string">'#6366f1'</span>, <span class="string">'#ec4899'</span>], ax=ax
+)
+ax.<span class="function">set_title</span>(<span class="string">'부서별 평균 연봉'</span>, fontsize=<span class="number">16</span>)
+ax.<span class="function">set_xlabel</span>(<span class="string">'부서'</span>)
+ax.<span class="function">set_ylabel</span>(<span class="string">'연봉 (만원)'</span>)
+plt.<span class="function">tight_layout</span>()
+plt.<span class="function">show</span>()
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#d1fae5;color:var(--day5)">3</span> 파일 입출력</h3>
+            <p class="description">CSV, Excel 등 다양한 형식으로 데이터를 불러오고 저장합니다.</p>
+            <div class="code-block">
+<span class="comment"># CSV 파일</span>
+df = pd.<span class="function">read_csv</span>(<span class="string">'data.csv'</span>, encoding=<span class="string">'utf-8'</span>)
+df.<span class="function">to_csv</span>(<span class="string">'output.csv'</span>, index=<span class="keyword">False</span>)
+
+<span class="comment"># Excel 파일</span>
+df = pd.<span class="function">read_excel</span>(<span class="string">'data.xlsx'</span>, sheet_name=<span class="string">'Sheet1'</span>)
+df.<span class="function">to_excel</span>(<span class="string">'output.xlsx'</span>, index=<span class="keyword">False</span>)
+
+<span class="comment"># JSON 파일</span>
+df = pd.<span class="function">read_json</span>(<span class="string">'data.json'</span>)
+df.<span class="function">to_json</span>(<span class="string">'output.json'</span>)
+            </div>
+        </div>
+
+        <div class="topic-card">
+            <h3><span class="topic-icon" style="background:#d1fae5;color:var(--day5)">4</span> 실전 미니 프로젝트</h3>
+            <p class="description">5일간 배운 내용을 종합하여 실전 데이터를 분석해봅니다!</p>
+            <div class="code-block">
+<span class="comment"># 실전 프로젝트: 매출 데이터 분석</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+
+<span class="comment"># 1. 데이터 불러오기</span>
+df = pd.<span class="function">read_csv</span>(<span class="string">'sales.csv'</span>)
+
+<span class="comment"># 2. 데이터 탐색</span>
+<span class="keyword">print</span>(df.<span class="function">head</span>())
+<span class="keyword">print</span>(df.<span class="function">info</span>())
+<span class="keyword">print</span>(df.<span class="function">describe</span>())
+
+<span class="comment"># 3. 결측값 처리</span>
+df = df.<span class="function">dropna</span>()
+
+<span class="comment"># 4. 카테고리별 매출 분석</span>
+category_sales = df.<span class="function">groupby</span>(<span class="string">'카테고리'</span>)[<span class="string">'매출'</span>].<span class="function">sum</span>()
+
+<span class="comment"># 5. 시각화</span>
+category_sales.<span class="function">plot</span>(kind=<span class="string">'bar'</span>)
+plt.<span class="function">title</span>(<span class="string">'카테고리별 총 매출'</span>)
+plt.<span class="function">show</span>()
+
+<span class="comment"># 6. 결과 저장</span>
+category_sales.<span class="function">to_csv</span>(<span class="string">'result.csv'</span>)
+            </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="video-section">
+            <h3>&#9654; 추천 유튜브 강의</h3>
+            <div class="video-grid">
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/9PF4BAFh-J8" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas의 기본 사용법 - Python 데이터 분석</div>
+                        <div class="video-channel">시각화 포함 종합 강의</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/ddSR4xAjAww" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">Pandas로 데이터 불러오고 요약하기</div>
+                        <div class="video-channel">공공데이터 분석 실습</div>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <iframe src="https://www.youtube.com/embed/-hpiY401r-M" allowfullscreen loading="lazy"></iframe>
+                    <div class="video-info">
+                        <div class="video-title">파이썬으로 하는 데이터 분석 - Pandas 제대로 배우기</div>
+                        <div class="video-channel">HD 종합 강의</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="checklist-section">
+            <h3>&#9745; Day 5 학습 체크리스트</h3>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d5-1" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">.plot()으로 기본 차트 그리기<span class="sub">막대, 선, 히스토그램, 파이, 산점도 중 3개 이상 그려보기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d5-2" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">Matplotlib으로 차트 꾸미기<span class="sub">제목, 라벨, 색상, 크기 등을 커스터마이징 해보기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d5-3" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">CSV 파일 읽기/쓰기 실습<span class="sub">read_csv(), to_csv() 사용해보기</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d5-4" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">미니 프로젝트 완성<span class="sub">실제 데이터(CSV)를 불러와서 탐색 -> 전처리 -> 분석 -> 시각화</span></span>
+            </label>
+            <label class="checklist-item">
+                <input type="checkbox" data-id="d5-5" onchange="saveProgress()">
+                <span class="checkmark"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                <span class="check-label">추천 유튜브 강의 1개 이상 시청</span>
+            </label>
+            <div class="tip-box">
+                <strong>Tip!</strong>
+                Kaggle(kaggle.com)에서 무료 데이터셋을 다운받아 실습할 수 있어요. "titanic", "iris" 같은 유명 데이터셋으로 시작해보세요!
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p>Pandas 101 - 5일 완성 학습 플랜 | 화이팅!</p>
+</footer>
+
+<script>
+    // Tab navigation
+    function showDay(day) {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
+        document.querySelector(`.nav-tab[data-day="${day}"]`).classList.add('active');
+        document.querySelector(`.day-panel[data-day="${day}"]`).classList.add('active');
+    }
+
+    // Save/Load progress with localStorage
+    function saveProgress() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const state = {};
+        checkboxes.forEach(cb => {
+            state[cb.dataset.id] = cb.checked;
+        });
+        localStorage.setItem('pandas101_progress', JSON.stringify(state));
+        updateProgressBar();
+    }
+
+    function loadProgress() {
+        const saved = localStorage.getItem('pandas101_progress');
+        if (saved) {
+            const state = JSON.parse(saved);
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                if (state[cb.dataset.id]) {
+                    cb.checked = true;
+                }
+            });
+        }
+        updateProgressBar();
+    }
+
+    function updateProgressBar() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const total = checkboxes.length;
+        const checked = document.querySelectorAll('input[type="checkbox"]:checked').length;
+        const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
+
+        document.getElementById('progressPercent').textContent = percent + '%';
+        document.getElementById('progressFill').style.width = percent + '%';
+    }
+
+    function resetAll() {
+        if (confirm('모든 진행률을 초기화하시겠습니까?')) {
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            localStorage.removeItem('pandas101_progress');
+            updateProgressBar();
+        }
+    }
+
+    // Initialize
+    loadProgress();
+</script>
+
+</body>
+</html>
