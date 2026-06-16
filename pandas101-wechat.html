@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pandas 101 - 5天掌握Python数据分析</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* WeChat article container — max 677px like real articles */
+        .article {
+            max-width: 677px;
+            margin: 0 auto;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        /* ===== SECTION: Hero / Cover ===== */
+        .hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 60px 30px 50px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(236,72,153,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 4px 16px;
+            background: rgba(255,215,0,0.15);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffd700;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 900;
+            color: #ffd700;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .hero .subtitle {
+            font-size: 16px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .hero .subtitle-en {
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            position: relative;
+        }
+
+        .lang-pills {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 24px;
+            position: relative;
+        }
+
+        .lang-pill {
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .lang-pill.en { background: rgba(34,211,238,0.15); color: #22d3ee; }
+        .lang-pill.ko { background: rgba(99,102,241,0.15); color: #818cf8; }
+        .lang-pill.zh { background: rgba(236,72,153,0.15); color: #f472b6; }
+
+        /* ===== Common Section Styles ===== */
+        .section {
+            padding: 40px 24px;
+        }
+
+        .section-alt {
+            background: #fafbfc;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+            position: relative;
+            padding-left: 16px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 4px;
+            height: 22px;
+            background: linear-gradient(180deg, #6366f1, #ec4899);
+            border-radius: 2px;
+        }
+
+        .section-desc {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 24px;
+            padding-left: 16px;
+        }
+
+        /* ===== What is it — Feature Cards ===== */
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .feature-card {
+            background: #fff;
+            border: 1px solid #eef0f5;
+            border-radius: 12px;
+            padding: 20px 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-alt .feature-card {
+            background: #fff;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+
+        .feature-card.c1::before { background: linear-gradient(90deg, #6366f1, #818cf8); }
+        .feature-card.c2::before { background: linear-gradient(90deg, #ec4899, #f472b6); }
+        .feature-card.c3::before { background: linear-gradient(90deg, #10b981, #34d399); }
+        .feature-card.c4::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+        .feature-num {
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .feature-card.c1 .feature-num { color: #6366f1; }
+        .feature-card.c2 .feature-num { color: #ec4899; }
+        .feature-card.c3 .feature-num { color: #10b981; }
+        .feature-card.c4 .feature-num { color: #8b5cf6; }
+
+        .feature-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+        }
+
+        .feature-card p {
+            font-size: 12.5px;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        /* ===== 5-Day Roadmap ===== */
+        .roadmap {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .roadmap::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #6366f1, #8b5cf6, #ec4899, #f59e0b, #10b981);
+            border-radius: 1px;
+        }
+
+        .day-item {
+            position: relative;
+            margin-bottom: 20px;
+            background: #fff;
+            border: 1px solid #eef0f5;
+            border-radius: 12px;
+            padding: 18px 20px;
+        }
+
+        .section-alt .day-item {
+            background: #fff;
+        }
+
+        .day-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 22px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px currentColor;
+        }
+
+        .day-item:nth-child(1)::before { color: #6366f1; background: #6366f1; }
+        .day-item:nth-child(2)::before { color: #8b5cf6; background: #8b5cf6; }
+        .day-item:nth-child(3)::before { color: #ec4899; background: #ec4899; }
+        .day-item:nth-child(4)::before { color: #f59e0b; background: #f59e0b; }
+        .day-item:nth-child(5)::before { color: #10b981; background: #10b981; }
+
+        .day-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .day-item:nth-child(1) .day-badge { background: #6366f1; }
+        .day-item:nth-child(2) .day-badge { background: #8b5cf6; }
+        .day-item:nth-child(3) .day-badge { background: #ec4899; }
+        .day-item:nth-child(4) .day-badge { background: #f59e0b; }
+        .day-item:nth-child(5) .day-badge { background: #10b981; }
+
+        .day-item h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+        }
+
+        .day-item p {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        .day-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .day-tag {
+            padding: 2px 10px;
+            background: #f5f6fa;
+            border-radius: 6px;
+            font-size: 11.5px;
+            color: #666;
+            font-family: 'Menlo', 'Courier New', monospace;
+        }
+
+        /* ===== Features Detail ===== */
+        .highlight-list {
+            list-style: none;
+        }
+
+        .highlight-list li {
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #eef0f5;
+            font-size: 14px;
+            color: #444;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.6;
+        }
+
+        .section-alt .highlight-list li {
+            background: #fff;
+        }
+
+        .highlight-icon {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-top: 1px;
+        }
+
+        .hi-purple { background: rgba(99,102,241,0.1); }
+        .hi-pink { background: rgba(236,72,153,0.1); }
+        .hi-green { background: rgba(16,185,129,0.1); }
+        .hi-cyan { background: rgba(34,211,238,0.1); }
+        .hi-orange { background: rgba(245,158,11,0.1); }
+
+        /* ===== Language Section ===== */
+        .lang-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .lang-card {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid #eef0f5;
+            border-radius: 12px;
+            padding: 16px 20px;
+            gap: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .section-alt .lang-card {
+            background: #fff;
+        }
+
+        .lang-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        .lang-card.lc-en::before { background: #22d3ee; }
+        .lang-card.lc-ko::before { background: #6366f1; }
+        .lang-card.lc-zh::before { background: #ec4899; }
+
+        .lang-label {
+            font-size: 14px;
+            font-weight: 800;
+            min-width: 60px;
+        }
+
+        .lc-en .lang-label { color: #22d3ee; }
+        .lc-ko .lang-label { color: #6366f1; }
+        .lc-zh .lang-label { color: #ec4899; }
+
+        .lang-card .lang-url {
+            font-size: 12.5px;
+            color: #888;
+            word-break: break-all;
+            font-family: 'Menlo', 'Courier New', monospace;
+        }
+
+        .lang-card .lang-desc {
+            font-size: 13px;
+            color: #555;
+            flex: 1;
+        }
+
+        /* ===== CTA Section ===== */
+        .cta {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 50px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #ec4899, #f59e0b, #10b981);
+        }
+
+        .cta h2 {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .cta p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 24px;
+        }
+
+        .cta-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto 24px;
+        }
+
+        .cta-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 12px 18px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .cta-link:hover {
+            background: rgba(255,255,255,0.12);
+        }
+
+        .cta-link .cta-lang {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .cta-link.cl-en .cta-lang { color: #22d3ee; }
+        .cta-link.cl-ko .cta-lang { color: #818cf8; }
+        .cta-link.cl-zh .cta-lang { color: #f472b6; }
+
+        .cta-link .cta-url {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            font-family: 'Menlo', 'Courier New', monospace;
+        }
+
+        .cta-link .cta-arrow {
+            color: rgba(255,255,255,0.3);
+            font-size: 16px;
+        }
+
+        .cta-footer {
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 10px;
+        }
+
+        /* ===== QR Placeholder ===== */
+        .qr-box {
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.08);
+            border: 1px dashed rgba(255,255,255,0.2);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .qr-box span {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 400px) {
+            .hero h1 { font-size: 32px; }
+            .features { grid-template-columns: 1fr; }
+            .section { padding: 30px 18px; }
+            .hero { padding: 45px 20px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="article">
+
+    <!-- ====== HERO / COVER ====== -->
+    <section class="hero">
+        <div class="hero-badge">FREE COURSE</div>
+        <h1>Pandas 101</h1>
+        <div class="subtitle">5天掌握Python数据分析利器</div>
+        <div class="subtitle-en">5-Day Mastery Plan &nbsp;|&nbsp; 5일 완성 학습 플랜</div>
+        <div class="lang-pills">
+            <span class="lang-pill en">English</span>
+            <span class="lang-pill ko">한국어</span>
+            <span class="lang-pill zh">中文</span>
+        </div>
+    </section>
+
+    <!-- ====== WHAT IS IT ====== -->
+    <section class="section">
+        <div class="section-title">这是什么?</div>
+        <div class="section-desc">一个免费的交互式网页，帮你从零开始5天学会Pandas</div>
+
+        <div class="features">
+            <div class="feature-card c1">
+                <div class="feature-num">5天</div>
+                <h3>结构化课程</h3>
+                <p>从基础到实战项目，每天主题明确、循序渐进</p>
+            </div>
+            <div class="feature-card c2">
+                <div class="feature-num">15个</div>
+                <h3>YouTube视频</h3>
+                <p>精选韩语/中文教程，直接嵌入页面，无需跳转</p>
+            </div>
+            <div class="feature-card c3">
+                <div class="feature-num">25项</div>
+                <h3>学习清单</h3>
+                <p>勾选即自动保存进度，下次打开继续学习</p>
+            </div>
+            <div class="feature-card c4">
+                <div class="feature-num">3种</div>
+                <h3>语言支持</h3>
+                <p>英文 / 韩文 / 中文，一键切换，进度独立</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 5-DAY ROADMAP ====== -->
+    <section class="section section-alt">
+        <div class="section-title">5天学习路线</div>
+        <div class="section-desc">每天1-2小时，从入门到实战</div>
+
+        <div class="roadmap">
+            <div class="day-item">
+                <span class="day-badge">Day 1</span>
+                <h3>Pandas入门 & 基本数据结构</h3>
+                <p>了解Pandas是什么，掌握Series和DataFrame两大核心数据结构</p>
+                <div class="day-tags">
+                    <span class="day-tag">Series</span>
+                    <span class="day-tag">DataFrame</span>
+                    <span class="day-tag">head()</span>
+                    <span class="day-tag">info()</span>
+                    <span class="day-tag">describe()</span>
+                </div>
+            </div>
+            <div class="day-item">
+                <span class="day-badge">Day 2</span>
+                <h3>数据选择 & 索引</h3>
+                <p>学会用loc/iloc选取数据，掌握条件筛选和排序</p>
+                <div class="day-tags">
+                    <span class="day-tag">loc</span>
+                    <span class="day-tag">iloc</span>
+                    <span class="day-tag">filtering</span>
+                    <span class="day-tag">sort_values()</span>
+                    <span class="day-tag">isin()</span>
+                </div>
+            </div>
+            <div class="day-item">
+                <span class="day-badge">Day 3</span>
+                <h3>数据加工 & 预处理</h3>
+                <p>处理缺失值、转换数据类型、用apply/map变换数据</p>
+                <div class="day-tags">
+                    <span class="day-tag">dropna()</span>
+                    <span class="day-tag">fillna()</span>
+                    <span class="day-tag">astype()</span>
+                    <span class="day-tag">apply()</span>
+                    <span class="day-tag">map()</span>
+                </div>
+            </div>
+            <div class="day-item">
+                <span class="day-badge">Day 4</span>
+                <h3>GroupBy & 统计分析</h3>
+                <p>按分组聚合数据，学习透视表和数据合并</p>
+                <div class="day-tags">
+                    <span class="day-tag">groupby()</span>
+                    <span class="day-tag">agg()</span>
+                    <span class="day-tag">pivot_table()</span>
+                    <span class="day-tag">merge()</span>
+                    <span class="day-tag">concat()</span>
+                </div>
+            </div>
+            <div class="day-item">
+                <span class="day-badge">Day 5</span>
+                <h3>数据可视化 & 实战项目</h3>
+                <p>用Matplotlib画图，完成一个完整的数据分析小项目</p>
+                <div class="day-tags">
+                    <span class="day-tag">plot()</span>
+                    <span class="day-tag">matplotlib</span>
+                    <span class="day-tag">read_csv()</span>
+                    <span class="day-tag">to_csv()</span>
+                    <span class="day-tag">mini project</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== KEY FEATURES ====== -->
+    <section class="section">
+        <div class="section-title">核心亮点</div>
+        <div class="section-desc">为什么选择这个学习平台?</div>
+
+        <ul class="highlight-list">
+            <li>
+                <span class="highlight-icon hi-purple">&#9654;</span>
+                <span><strong>视频直接嵌入</strong> — YouTube教程无需跳转，边看边学</span>
+            </li>
+            <li>
+                <span class="highlight-icon hi-pink">&#60;/&#62;</span>
+                <span><strong>代码示例高亮</strong> — 每个知识点附带可运行的代码示例</span>
+            </li>
+            <li>
+                <span class="highlight-icon hi-green">&#10003;</span>
+                <span><strong>进度自动保存</strong> — 勾选清单后浏览器自动记住，随时继续</span>
+            </li>
+            <li>
+                <span class="highlight-icon hi-cyan">&#9632;</span>
+                <span><strong>实时进度条</strong> — 全局进度条直观显示你的学习完成度</span>
+            </li>
+            <li>
+                <span class="highlight-icon hi-orange">&#9733;</span>
+                <span><strong>移动端适配</strong> — 响应式设计，手机/平板/电脑都能用</span>
+            </li>
+        </ul>
+    </section>
+
+    <!-- ====== 3 LANGUAGES ====== -->
+    <section class="section section-alt">
+        <div class="section-title">三语一键切换</div>
+        <div class="section-desc">English / 한국어 / 中文，每种语言独立保存学习进度</div>
+
+        <div class="lang-cards">
+            <div class="lang-card lc-en">
+                <div>
+                    <div class="lang-label">English</div>
+                    <div class="lang-desc">Master Python data analysis — learn Pandas in 5 days</div>
+                    <div class="lang-url">pandas101-en.html</div>
+                </div>
+            </div>
+            <div class="lang-card lc-ko">
+                <div>
+                    <div class="lang-label">한국어</div>
+                    <div class="lang-desc">파이썬 데이터 분석의 핵심, 판다스를 5일 만에 마스터</div>
+                    <div class="lang-url">pandas101.html</div>
+                </div>
+            </div>
+            <div class="lang-card lc-zh">
+                <div>
+                    <div class="lang-label">中文</div>
+                    <div class="lang-desc">Python数据分析的核心，5天掌握Pandas</div>
+                    <div class="lang-url">pandas101-zh.html</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== CTA ====== -->
+    <section class="cta">
+        <h2>现在就开始学习!</h2>
+        <p>打开浏览器，访问以下链接即可</p>
+
+        <div class="cta-links">
+            <a href="https://mrfeixiang.github.io/pandas101-en.html" class="cta-link cl-en">
+                <span class="cta-lang">EN</span>
+                <span class="cta-url">mrfeixiang.github.io/pandas101-en.html</span>
+                <span class="cta-arrow">&rarr;</span>
+            </a>
+            <a href="https://mrfeixiang.github.io/pandas101.html" class="cta-link cl-ko">
+                <span class="cta-lang">KO</span>
+                <span class="cta-url">mrfeixiang.github.io/pandas101.html</span>
+                <span class="cta-arrow">&rarr;</span>
+            </a>
+            <a href="https://mrfeixiang.github.io/pandas101-zh.html" class="cta-link cl-zh">
+                <span class="cta-lang">ZH</span>
+                <span class="cta-url">mrfeixiang.github.io/pandas101-zh.html</span>
+                <span class="cta-arrow">&rarr;</span>
+            </a>
+        </div>
+
+        <div class="qr-box">
+            <span>放置你的<br>二维码</span>
+        </div>
+
+        <div class="cta-footer">
+            免费 &nbsp;&bull;&nbsp; 无需登录 &nbsp;&bull;&nbsp; 进度自动保存 &nbsp;&bull;&nbsp; 全设备兼容
+        </div>
+    </section>
+
+</div>
+
+</body>
+</html>
