@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMILES to 2D SDF Converter</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-light: #64748b;
+    --success: #16a34a;
+    --error: #dc2626;
+    --accent: #7c3aed;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .header p {
+    opacity: 0.9;
+    font-size: 0.95rem;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+    background: var(--primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+
+  /* Input section */
+  .input-mode-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .tab-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .input-single, .input-batch {
+    display: none;
+  }
+
+  .input-single.active, .input-batch.active {
+    display: block;
+  }
+
+  .smiles-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .smiles-input:focus {
+    border-color: var(--primary);
+  }
+
+  textarea.smiles-input {
+    min-height: 150px;
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  .hint {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+  }
+
+  .examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+
+  .example-btn {
+    padding: 0.3rem 0.7rem;
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-family: monospace;
+    transition: all 0.2s;
+  }
+
+  .example-btn:hover {
+    background: #e2e8f0;
+    border-color: var(--primary);
+  }
+
+  .convert-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.75rem 2rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .convert-btn:hover { background: var(--primary-dark); }
+  .convert-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .convert-btn .spinner {
+    display: none;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  .convert-btn.loading .spinner { display: inline-block; }
+  .convert-btn.loading .btn-text { display: none; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Result section */
+  .result-section { display: none; }
+  .result-section.visible { display: block; }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 700px) {
+    .result-grid { grid-template-columns: 1fr; }
+  }
+
+  .mol-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-height: 300px;
+    padding: 1rem;
+  }
+
+  .mol-preview canvas, .mol-preview svg {
+    max-width: 100%;
+  }
+
+  .sdf-output-wrap {
+    position: relative;
+  }
+
+  .sdf-output {
+    width: 100%;
+    min-height: 300px;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    background: #f8fafc;
+    resize: vertical;
+    outline: none;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+  }
+
+  .action-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .action-btn.copied {
+    border-color: var(--success);
+    color: var(--success);
+  }
+
+  /* Batch results */
+  .batch-results {
+    display: none;
+  }
+
+  .batch-results.visible {
+    display: block;
+  }
+
+  .batch-summary {
+    padding: 0.75rem 1rem;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #166534;
+  }
+
+  .batch-summary.has-errors {
+    background: #fef9c3;
+    border-color: #fde68a;
+    color: #854d0e;
+  }
+
+  .batch-mol-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .batch-mol-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .batch-mol-card .mol-img {
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem;
+    background: #fafafa;
+    min-height: 150px;
+    align-items: center;
+  }
+
+  .batch-mol-card .mol-info {
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+  }
+
+  .batch-mol-card .mol-info .mol-name {
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+  }
+
+  .batch-mol-card .mol-info .mol-smiles {
+    color: var(--text-light);
+    font-family: monospace;
+    font-size: 0.75rem;
+    word-break: break-all;
+  }
+
+  .batch-mol-card.error {
+    border-color: #fca5a5;
+  }
+
+  .batch-mol-card.error .mol-img {
+    background: #fef2f2;
+    color: var(--error);
+    font-size: 0.85rem;
+  }
+
+  /* Status messages */
+  .status-msg {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+    display: none;
+  }
+
+  .status-msg.error {
+    display: block;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: var(--error);
+  }
+
+  .status-msg.info {
+    display: block;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: var(--primary);
+  }
+
+  /* Loading overlay */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .loading-overlay.visible {
+    display: flex;
+  }
+
+  .loading-box {
+    background: white;
+    padding: 2rem 3rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+
+  .loading-box .big-spinner {
+    width: 40px; height: 40px;
+    border: 4px solid #e2e8f0;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-light);
+    font-size: 0.8rem;
+  }
+
+  .footer a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>SMILES to 2D SDF Converter</h1>
+  <p>SMILES 입력 → 2D 구조 생성 → SDF 파일 다운로드</p>
+</div>
+
+<div class="container">
+  <!-- Input Card -->
+  <div class="card">
+    <h2>SMILES 입력</h2>
+
+    <div class="input-mode-tabs">
+      <button class="tab-btn active" onclick="switchMode('single')">단일 분자</button>
+      <button class="tab-btn" onclick="switchMode('batch')">일괄 변환</button>
+    </div>
+
+    <div class="input-single active" id="singleMode">
+      <input type="text" class="smiles-input" id="smilesInput"
+             placeholder="SMILES를 입력하세요 (예: CCO)"
+             autocomplete="off" spellcheck="false">
+      <div class="examples">
+        <span style="font-size:0.8rem; color:var(--text-light); margin-right:0.3rem;">예시:</span>
+        <button class="example-btn" onclick="setExample('CCO')">에탄올</button>
+        <button class="example-btn" onclick="setExample('c1ccccc1')">벤젠</button>
+        <button class="example-btn" onclick="setExample('CC(=O)Oc1ccccc1C(=O)O')">아스피린</button>
+        <button class="example-btn" onclick="setExample('CC(C)Cc1ccc(cc1)[C@@H](C)C(=O)O')">이부프로펜</button>
+        <button class="example-btn" onclick="setExample('CN1C=NC2=C1C(=O)N(C(=O)N2C)C')">카페인</button>
+        <button class="example-btn" onclick="setExample('CC12CCC3C(C1CCC2O)CCC4=CC(=O)CCC34C')">테스토스테론</button>
+      </div>
+    </div>
+
+    <div class="input-batch" id="batchMode">
+      <textarea class="smiles-input" id="batchInput"
+                placeholder="한 줄에 하나씩 입력하세요&#10;&#10;형식: SMILES (또는 SMILES 이름)&#10;&#10;예시:&#10;CCO ethanol&#10;c1ccccc1 benzene&#10;CC(=O)O acetic_acid"></textarea>
+      <div class="hint">한 줄에 SMILES 하나. 공백 뒤에 이름을 추가할 수 있습니다.</div>
+    </div>
+
+    <button class="convert-btn" id="convertBtn" onclick="convert()">
+      <span class="spinner"></span>
+      <span class="btn-text">변환하기</span>
+    </button>
+
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <!-- Single Result -->
+  <div class="card result-section" id="singleResult">
+    <h2>변환 결과 <span class="badge" id="resultMolName"></span></h2>
+    <div class="result-grid">
+      <div>
+        <div class="mol-preview" id="molPreview"></div>
+      </div>
+      <div class="sdf-output-wrap">
+        <textarea class="sdf-output" id="sdfOutput" readonly></textarea>
+      </div>
+    </div>
+    <div class="action-buttons">
+      <button class="action-btn" onclick="copySdf()">
+        <span id="copyIcon">&#128203;</span> <span id="copyText">SDF 복사</span>
+      </button>
+      <button class="action-btn" onclick="downloadSdf()">
+        &#128190; SDF 다운로드
+      </button>
+      <button class="action-btn" onclick="downloadSvg()">
+        &#128444; 구조 이미지 (SVG)
+      </button>
+    </div>
+  </div>
+
+  <!-- Batch Result -->
+  <div class="card batch-results" id="batchResult">
+    <h2>일괄 변환 결과</h2>
+    <div class="batch-summary" id="batchSummary"></div>
+    <div class="batch-mol-grid" id="batchMolGrid"></div>
+    <div class="action-buttons">
+      <button class="action-btn" onclick="downloadBatchSdf()">
+        &#128190; 전체 SDF 다운로드
+      </button>
+      <button class="action-btn" onclick="copyBatchSdf()">
+        <span id="batchCopyIcon">&#128203;</span> <span id="batchCopyText">전체 SDF 복사</span>
+      </button>
+    </div>
+    <details style="margin-top:1rem;">
+      <summary style="cursor:pointer;font-size:0.9rem;color:var(--text-light);">전체 SDF 내용 보기</summary>
+      <textarea class="sdf-output" id="batchSdfOutput" readonly style="margin-top:0.5rem;min-height:200px;"></textarea>
+    </details>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="big-spinner"></div>
+    <div>RDKit.js 로딩 중...</div>
+    <div style="font-size:0.8rem;color:var(--text-light);margin-top:0.3rem;">처음 한 번만 시간이 걸립니다</div>
+  </div>
+</div>
+
+<div class="footer">
+  Powered by <a href="https://github.com/rdkit/rdkit-js" target="_blank">RDKit.js</a>
+  &middot; AIDD SYStem &middot; mrfeixiang
+</div>
+
+<script src="https://unpkg.com/@rdkit/rdkit@2024.3.5/dist/RDKit_minimal.js"></script>
+<script>
+let RDKitModule = null;
+let currentMode = 'single';
+let currentSdfData = '';
+let currentSvgData = '';
+let batchSdfData = '';
+
+// RDKit 초기화
+async function initRDKit() {
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.classList.add('visible');
+  try {
+    RDKitModule = await window.initRDKitModule();
+    console.log('RDKit.js loaded:', RDKitModule.version());
+    overlay.classList.remove('visible');
+  } catch (e) {
+    overlay.classList.remove('visible');
+    showStatus('RDKit.js 로딩 실패. 페이지를 새로고침해주세요.', 'error');
+    console.error(e);
+  }
+}
+
+initRDKit();
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.tab-btn:nth-child(${mode === 'single' ? 1 : 2})`).classList.add('active');
+  document.getElementById('singleMode').classList.toggle('active', mode === 'single');
+  document.getElementById('batchMode').classList.toggle('active', mode === 'batch');
+  document.getElementById('singleResult').classList.remove('visible');
+  document.getElementById('batchResult').classList.remove('visible');
+  hideStatus();
+}
+
+function setExample(smiles) {
+  document.getElementById('smilesInput').value = smiles;
+  document.getElementById('smilesInput').focus();
+}
+
+function showStatus(msg, type) {
+  const el = document.getElementById('statusMsg');
+  el.className = 'status-msg ' + type;
+  el.textContent = msg;
+}
+
+function hideStatus() {
+  document.getElementById('statusMsg').className = 'status-msg';
+}
+
+function convert() {
+  if (!RDKitModule) {
+    showStatus('RDKit.js가 아직 로딩 중입니다. 잠시 후 다시 시도해주세요.', 'error');
+    return;
+  }
+  hideStatus();
+
+  if (currentMode === 'single') {
+    convertSingle();
+  } else {
+    convertBatch();
+  }
+}
+
+function convertSingle() {
+  const smiles = document.getElementById('smilesInput').value.trim();
+  if (!smiles) {
+    showStatus('SMILES를 입력해주세요.', 'error');
+    return;
+  }
+
+  let mol;
+  try {
+    mol = RDKitModule.get_mol(smiles);
+  } catch (e) {
+    showStatus('유효하지 않은 SMILES입니다. 다시 확인해주세요.', 'error');
+    return;
+  }
+
+  if (!mol || !mol.is_valid()) {
+    showStatus('유효하지 않은 SMILES입니다. 다시 확인해주세요.', 'error');
+    if (mol) mol.delete();
+    return;
+  }
+
+  try {
+    // 2D SDF 생성
+    currentSdfData = mol.get_molblock();
+
+    // SVG 생성
+    const svgOpts = JSON.stringify({ width: 350, height: 300 });
+    currentSvgData = mol.get_svg_with_highlights(svgOpts);
+
+    // 결과 표시
+    document.getElementById('molPreview').innerHTML = currentSvgData;
+    document.getElementById('sdfOutput').value = currentSdfData;
+    document.getElementById('resultMolName').textContent = smiles;
+    document.getElementById('singleResult').classList.add('visible');
+    document.getElementById('batchResult').classList.remove('visible');
+  } catch (e) {
+    showStatus('변환 중 오류가 발생했습니다: ' + e.message, 'error');
+  } finally {
+    mol.delete();
+  }
+}
+
+function convertBatch() {
+  const text = document.getElementById('batchInput').value.trim();
+  if (!text) {
+    showStatus('SMILES를 입력해주세요.', 'error');
+    return;
+  }
+
+  const lines = text.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'));
+  if (lines.length === 0) {
+    showStatus('변환할 SMILES가 없습니다.', 'error');
+    return;
+  }
+
+  const grid = document.getElementById('batchMolGrid');
+  grid.innerHTML = '';
+  batchSdfData = '';
+
+  let success = 0, fail = 0;
+
+  lines.forEach((line, i) => {
+    const parts = line.trim().split(/\s+/);
+    const smiles = parts[0];
+    const name = parts[1] || `mol_${i + 1}`;
+
+    let mol;
+    try {
+      mol = RDKitModule.get_mol(smiles);
+    } catch (e) {
+      mol = null;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'batch-mol-card';
+
+    if (mol && mol.is_valid()) {
+      const molblock = mol.get_molblock();
+      // 이름을 첫 줄에 추가
+      const namedMolblock = name + molblock.substring(molblock.indexOf('\n'));
+      batchSdfData += namedMolblock + '\n$$$$\n';
+
+      const svgOpts = JSON.stringify({ width: 180, height: 140 });
+      const svg = mol.get_svg_with_highlights(svgOpts);
+
+      card.innerHTML = `
+        <div class="mol-img">${svg}</div>
+        <div class="mol-info">
+          <div class="mol-name">${name}</div>
+          <div class="mol-smiles">${smiles}</div>
+        </div>`;
+      success++;
+      mol.delete();
+    } else {
+      card.className += ' error';
+      card.innerHTML = `
+        <div class="mol-img">변환 실패</div>
+        <div class="mol-info">
+          <div class="mol-name">${name}</div>
+          <div class="mol-smiles">${smiles}</div>
+        </div>`;
+      fail++;
+      if (mol) mol.delete();
+    }
+
+    grid.appendChild(card);
+  });
+
+  const summary = document.getElementById('batchSummary');
+  summary.textContent = `총 ${lines.length}개 중 성공: ${success}개, 실패: ${fail}개`;
+  summary.className = fail > 0 ? 'batch-summary has-errors' : 'batch-summary';
+
+  document.getElementById('batchSdfOutput').value = batchSdfData;
+  document.getElementById('singleResult').classList.remove('visible');
+  document.getElementById('batchResult').classList.add('visible');
+}
+
+function copySdf() {
+  navigator.clipboard.writeText(currentSdfData).then(() => {
+    document.getElementById('copyText').textContent = '복사 완료!';
+    document.querySelector('.action-btn').classList.add('copied');
+    setTimeout(() => {
+      document.getElementById('copyText').textContent = 'SDF 복사';
+      document.querySelector('.action-btn').classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function copyBatchSdf() {
+  navigator.clipboard.writeText(batchSdfData).then(() => {
+    document.getElementById('batchCopyText').textContent = '복사 완료!';
+    setTimeout(() => {
+      document.getElementById('batchCopyText').textContent = '전체 SDF 복사';
+    }, 2000);
+  });
+}
+
+function downloadSdf() {
+  const smiles = document.getElementById('smilesInput').value.trim();
+  const filename = smiles.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30) + '.sdf';
+  downloadFile(currentSdfData, filename, 'chemical/x-mdl-sdfile');
+}
+
+function downloadBatchSdf() {
+  downloadFile(batchSdfData, 'molecules.sdf', 'chemical/x-mdl-sdfile');
+}
+
+function downloadSvg() {
+  const smiles = document.getElementById('smilesInput').value.trim();
+  const filename = smiles.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30) + '.svg';
+  downloadFile(currentSvgData, filename, 'image/svg+xml');
+}
+
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// Enter 키로 변환
+document.getElementById('smilesInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') convert();
+});
+</script>
+</body>
+</html>
