@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>De Novo Nanobody Design — Mathematical Foundations</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-alt: #eef1f6;
+  --text: #1a1d23;
+  --text-muted: #5a6070;
+  --accent: #2563eb;
+  --accent-light: #dbeafe;
+  --accent-dark: #1d4ed8;
+  --teal: #0d9488;
+  --teal-light: #ccfbf1;
+  --violet: #7c3aed;
+  --violet-light: #ede9fe;
+  --rose: #e11d48;
+  --rose-light: #ffe4e6;
+  --border: #e2e5ec;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,.08);
+  --font: 'IBM Plex Sans', 'Noto Sans SC', 'Noto Sans KR', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface-alt: #242836;
+    --text: #e4e6ed;
+    --text-muted: #8b90a0;
+    --accent: #60a5fa;
+    --accent-light: #1e3a5f;
+    --accent-dark: #93bbfd;
+    --teal: #2dd4bf;
+    --teal-light: #134e4a;
+    --violet: #a78bfa;
+    --violet-light: #312e5c;
+    --rose: #fb7185;
+    --rose-light: #4c1d2e;
+    --border: #2d3040;
+    --shadow: 0 1px 3px rgba(0,0,0,.2);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface-alt: #242836;
+  --text: #e4e6ed;
+  --text-muted: #8b90a0;
+  --accent: #60a5fa;
+  --accent-light: #1e3a5f;
+  --accent-dark: #93bbfd;
+  --teal: #2dd4bf;
+  --teal-light: #134e4a;
+  --violet: #a78bfa;
+  --violet-light: #312e5c;
+  --rose: #fb7185;
+  --rose-light: #4c1d2e;
+  --border: #2d3040;
+  --shadow: 0 1px 3px rgba(0,0,0,.2);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV BAR ── */
+.topbar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  padding: 0 16px;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--surface);
+  z-index: 10;
+}
+.topbar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  gap: 8px;
+}
+.logo { font-weight: 700; font-size: 15px; white-space: nowrap; }
+.logo span { color: var(--accent); }
+
+.lang-switch {
+  display: flex;
+  gap: 2px;
+  background: var(--surface-alt);
+  border-radius: 6px;
+  padding: 2px;
+}
+.lang-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font: 500 12px/1 var(--font);
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.lang-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ── LAYOUT ── */
+.page { max-width: 720px; margin: 0 auto; padding: 24px 16px 80px; }
+
+/* ── HERO ── */
+.hero {
+  text-align: center;
+  padding: 40px 0 32px;
+}
+.hero h1 {
+  font-size: clamp(22px, 5vw, 32px);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 12px;
+}
+.hero .sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 520px;
+  margin: 0 auto 20px;
+}
+
+/* pipeline banner */
+.pipeline-banner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 20px 0;
+}
+.pipe-node {
+  font: 500 11px/1 var(--mono);
+  padding: 6px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.pipe-node.diff { background: var(--accent-light); color: var(--accent); }
+.pipe-node.seq  { background: var(--teal-light); color: var(--teal); }
+.pipe-node.val  { background: var(--violet-light); color: var(--violet); }
+.pipe-arrow {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ── TOC ── */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow);
+}
+.toc h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toc-list { list-style: none; }
+.toc-list li {
+  border-bottom: 1px solid var(--border);
+}
+.toc-list li:last-child { border-bottom: none; }
+.toc-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 14px;
+  transition: color .15s;
+}
+.toc-link:hover { color: var(--accent); }
+.toc-num {
+  font: 500 11px/1 var(--mono);
+  color: var(--text-muted);
+  min-width: 24px;
+}
+.toc-tag {
+  margin-left: auto;
+  font: 400 10px/1 var(--font);
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.toc-tag.math { background: var(--accent-light); color: var(--accent); }
+.toc-tag.bio  { background: var(--teal-light); color: var(--teal); }
+.toc-tag.tool { background: var(--violet-light); color: var(--violet); }
+
+/* ── CHAPTERS ── */
+.chapter {
+  margin-bottom: 40px;
+  scroll-margin-top: 70px;
+}
+.chapter-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+.chapter-num {
+  font: 700 28px/1 var(--mono);
+  color: var(--accent);
+  opacity: .35;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.chapter-title {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.chapter-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.chapter-body {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* sections inside chapter */
+.section {
+  border-bottom: 1px solid var(--border);
+}
+.section:last-child { border-bottom: none; }
+
+.section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font: 500 14px/1.4 var(--font);
+  text-align: left;
+  cursor: pointer;
+  transition: background .1s;
+}
+.section-toggle:hover { background: var(--surface-alt); }
+.section-toggle .arrow {
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+.section.open .arrow { transform: rotate(90deg); }
+
+.section-content {
+  display: none;
+  padding: 0 16px 16px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+.section.open .section-content { display: block; }
+
+.section-content p { margin-bottom: 10px; }
+
+/* formula blocks */
+.formula {
+  background: var(--surface-alt);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin: 10px 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-x: auto;
+  color: var(--text);
+}
+
+/* key-value fact rows */
+.kv {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 6px 12px;
+  font-size: 13px;
+  margin: 10px 0;
+}
+.kv dt { color: var(--text-muted); font-weight: 500; }
+.kv dd { color: var(--text); }
+
+/* reference pills */
+.refs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.ref-pill {
+  font: 400 11px/1 var(--font);
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+/* tool cards */
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+.tool-card {
+  background: var(--surface-alt);
+  border-radius: 6px;
+  padding: 12px;
+}
+.tool-card h4 {
+  font: 600 13px/1.3 var(--font);
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.tool-card p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* highlight callout */
+.callout {
+  border-left: 3px solid var(--accent);
+  padding: 10px 14px;
+  margin: 12px 0;
+  background: var(--accent-light);
+  border-radius: 0 6px 6px 0;
+  font-size: 13px;
+}
+.callout.teal  { border-color: var(--teal); background: var(--teal-light); }
+.callout.violet { border-color: var(--violet); background: var(--violet-light); }
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  padding: 32px 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 480px) {
+  .kv { grid-template-columns: 90px 1fr; }
+  .tool-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">Nb<span>Math</span></div>
+    <div class="lang-switch">
+      <button class="lang-btn active" data-lang="cn">中文</button>
+      <button class="lang-btn" data-lang="kr">한국어</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+  </div>
+</nav>
+
+<main class="page">
+
+<!-- HERO -->
+<section class="hero">
+  <h1>
+    <span data-i="hero-title">纳米抗体 De Novo 设计<br>数学基础与工具全景</span>
+  </h1>
+  <p class="sub">
+    <span data-i="hero-sub">从 RFdiffusion 到 ProteinMPNN，从线性代数到扩散模型概率论 —— 一本交互式三语参考手册</span>
+  </p>
+
+  <div class="pipeline-banner">
+    <div class="pipe-node diff">RFdiffusion</div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-node seq">ProteinMPNN</div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-node val">RF2 / AF3 / Boltz-2</div>
+  </div>
+</section>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>📑 <span data-i="toc-heading">目录</span></h2>
+  <ol class="toc-list">
+    <li><a class="toc-link" href="#ch1"><span class="toc-num">01</span><span data-i="toc-1">纳米抗体 De Novo 设计概览</span><span class="toc-tag bio">Bio</span></a></li>
+    <li><a class="toc-link" href="#ch2"><span class="toc-num">02</span><span data-i="toc-2">核心论文与里程碑</span><span class="toc-tag bio">Bio</span></a></li>
+    <li><a class="toc-link" href="#ch3"><span class="toc-num">03</span><span data-i="toc-3">计算工具全景</span><span class="toc-tag tool">Tool</span></a></li>
+    <li><a class="toc-link" href="#ch4"><span class="toc-num">04</span><span data-i="toc-4">线性代数 × 纳米抗体设计</span><span class="toc-tag math">Math</span></a></li>
+    <li><a class="toc-link" href="#ch5"><span class="toc-num">05</span><span data-i="toc-5">微积分 × 结构扩散与优化</span><span class="toc-tag math">Math</span></a></li>
+    <li><a class="toc-link" href="#ch6"><span class="toc-num">06</span><span data-i="toc-6">概率统计 × 序列生成与评估</span><span class="toc-tag math">Math</span></a></li>
+    <li><a class="toc-link" href="#ch7"><span class="toc-num">07</span><span data-i="toc-7">RFdiffusion 中的数学</span><span class="toc-tag math">Math</span></a></li>
+    <li><a class="toc-link" href="#ch8"><span class="toc-num">08</span><span data-i="toc-8">ProteinMPNN 中的数学</span><span class="toc-tag math">Math</span></a></li>
+    <li><a class="toc-link" href="#ch9"><span class="toc-num">09</span><span data-i="toc-9">结构验证中的数学 (AF3 / Boltz-2)</span><span class="toc-tag math">Math</span></a></li>
+    <li><a class="toc-link" href="#ch10"><span class="toc-num">10</span><span data-i="toc-10">实战：RFantibody 管线数学拆解</span><span class="toc-tag tool">Tool</span></a></li>
+  </ol>
+</div>
+
+<!-- ════════════ CH 1 ════════════ -->
+<div class="chapter" id="ch1">
+  <div class="chapter-header">
+    <div class="chapter-num">01</div>
+    <div>
+      <div class="chapter-title"><span data-i="ch1-title">纳米抗体 De Novo 设计概览</span></div>
+      <div class="chapter-desc"><span data-i="ch1-desc">从骆驼科 VHH 到计算设计的范式跃迁</span></div>
+    </div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="section open">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s1-1">什么是纳米抗体 (VHH)</span></button>
+      <div class="section-content">
+        <p data-i="s1-1-p1">纳米抗体 (Nanobody / VHH) 是来源于骆驼科动物的重链抗体可变区 (VHH domain)，分子量仅约 12–15 kDa，是最小的天然抗原结合片段。与传统 IgG (~150 kDa) 和 scFv (~25 kDa) 相比，VHH 具有高稳定性、低免疫原性、易于基因工程改造等优势。</p>
+        <dl class="kv">
+          <dt data-i="kv-size">分子量</dt><dd>~12–15 kDa</dd>
+          <dt data-i="kv-source">来源</dt><dd data-i="kv-source-v">骆驼、羊驼、鲨鱼 (VNAR)</dd>
+          <dt data-i="kv-cdr">CDR 区域</dt><dd>CDR1, CDR2, CDR3 (CDR3 特别长)</dd>
+          <dt data-i="kv-app">应用</dt><dd data-i="kv-app-v">诊断、治疗、成像、NDC</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s1-2">De Novo 设计 vs 传统免疫筛选</span></button>
+      <div class="section-content">
+        <p data-i="s1-2-p1">传统路径需要骆驼/羊驼免疫 → 噬菌体展示 → 淘选 → 亲和力成熟，耗时 6–12 个月。De novo 计算设计利用结构生成模型（如 RFdiffusion）直接在目标表位上生成 CDR 骨架，再用序列设计模型（如 ProteinMPNN）填充氨基酸，周期压缩至数天。</p>
+        <div class="callout" data-i="s1-2-callout">
+          核心管线 (RFantibody flow)：RFdiffusion (CDR 骨架) → ProteinMPNN (CDR 序列) → RF2/AF3 (验证过滤)
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s1-3">NDC (纳米抗体药物偶联物)</span></button>
+      <div class="section-content">
+        <p data-i="s1-3-p1">纳米抗体药物偶联物 (Nanobody-Drug Conjugate, NDC) 将细胞毒载荷通过可切割连接子与 VHH 偶联。相比 ADC，NDC 的肿瘤穿透能力更强、清除速率更快。</p>
+        <dl class="kv">
+          <dt data-i="kv-arch">架构</dt><dd>Nb–Nb (bivalent)–PEG–cleavable linker–payload</dd>
+          <dt data-i="kv-conj">偶联策略</dt><dd>Sortase A (SuperSrt) site-specific ligation</dd>
+          <dt data-i="kv-link">连接子</dt><dd>Cathepsin B cleavable + DBCO-azide click chemistry</dd>
+          <dt data-i="kv-payload">载荷</dt><dd>MMAE; Cy5-DBCO for imaging</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ CH 2 ════════════ -->
+<div class="chapter" id="ch2">
+  <div class="chapter-header">
+    <div class="chapter-num">02</div>
+    <div>
+      <div class="chapter-title"><span data-i="ch2-title">核心论文与里程碑</span></div>
+      <div class="chapter-desc"><span data-i="ch2-desc">塑造纳米抗体 de novo 设计领域的关键文献</span></div>
+    </div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s2-1">RFdiffusion (Watson et al., 2023)</span></button>
+      <div class="section-content">
+        <p data-i="s2-1-p1">RFdiffusion 将去噪扩散概率模型 (DDPM) 应用于蛋白质骨架生成。通过在 SE(3) 上定义噪声注入过程，逐步向 Cα 坐标添加高斯噪声，再训练神经网络逆转此过程。该模型首次实现了对给定靶点表位的条件骨架设计。</p>
+        <div class="formula">
+          q(x_t | x_{t-1}) = N(x_t; √(1−β_t)·x_{t-1}, β_t·I)<br>
+          p_θ(x_{t-1} | x_t) = N(x_{t-1}; μ_θ(x_t, t), σ²_t·I)
+        </div>
+        <div class="refs">
+          <span class="ref-pill">Watson et al., Nature 2023</span>
+          <span class="ref-pill">DDPM</span>
+          <span class="ref-pill">SE(3) equivariance</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s2-2">RFantibody (2024)</span></button>
+      <div class="section-content">
+        <p data-i="s2-2-p1">RFantibody 是 RFdiffusion 的抗体特化版本。在扩散训练中加入了抗体框架区 (FWR) 约束和 CDR 长度分布先验，使生成骨架的 CDR 几何形态与天然抗体数据库（SAbDab）更一致。支持固定 framework、仅扩散 CDR-H3 或全部 CDR。</p>
+        <div class="callout teal" data-i="s2-2-callout">
+          关键创新：CDR-specific diffusion — 仅在 CDR loop 区域执行噪声扩散，保持 framework 不变。
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s2-3">ProteinMPNN (Dauparas et al., 2022)</span></button>
+      <div class="section-content">
+        <p data-i="s2-3-p1">ProteinMPNN 是一个消息传递神经网络 (Message Passing Neural Network)，在给定蛋白质骨架结构的条件下自回归地预测氨基酸序列。核心数学：图神经网络中的节点/边信息聚合 + 交叉熵损失的序列似然最大化。</p>
+        <div class="formula">
+          P(S|X) = ∏ᵢ P(sᵢ | s_{&lt;i}, X)<br>
+          L = −∑ᵢ log P(sᵢ* | s_{&lt;i}*, X)
+        </div>
+        <div class="refs">
+          <span class="ref-pill">Dauparas et al., Science 2022</span>
+          <span class="ref-pill">GNN / MPNN</span>
+          <span class="ref-pill">Autoregressive decoding</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s2-4">AlphaFold3 / Boltz-2 (结构验证)</span></button>
+      <div class="section-content">
+        <p data-i="s2-4-p1">AlphaFold3 (Abramson et al., 2024) 使用扩散模块替代 AF2 的 Structure Module，支持蛋白质-蛋白质、蛋白质-小分子的共折叠预测。Boltz-2 (Wohlwend et al., 2025) 是开源替代方案，在抗体-抗原界面预测上表现优异。在 de novo 管线中，它们用于验证设计序列是否正确折叠并结合靶标。</p>
+        <dl class="kv">
+          <dt data-i="kv-metric">关键指标</dt><dd>ipTM, pAE_interaction, pLDDT</dd>
+          <dt data-i="kv-filter">过滤标准</dt><dd>ipTM > 0.7, pAE_interaction &lt; 10</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s2-5">BindCraft (Pacesa et al., 2024)</span></button>
+      <div class="section-content">
+        <p data-i="s2-5-p1">BindCraft 将 AF2 的置信度指标 (pAE, pLDDT) 作为可微分的优化目标，直接在序列空间中进行梯度优化来设计蛋白结合体。无需先生成骨架。数学核心：softmax 温度退火 + AF2 loss 的梯度回传。</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s2-6">其他关键模型</span></button>
+      <div class="section-content">
+        <div class="tool-grid">
+          <div class="tool-card">
+            <h4>Chai-1</h4>
+            <p data-i="s2-6-chai">开源共折叠模型，抗体-抗原亲和力排序精度高</p>
+          </div>
+          <div class="tool-card">
+            <h4>OpenDDE</h4>
+            <p data-i="s2-6-opendde">抗体-抗原结合能打分模型</p>
+          </div>
+          <div class="tool-card">
+            <h4>ESMFold / ESM-IF</h4>
+            <p data-i="s2-6-esm">大规模蛋白质语言模型的逆折叠方向</p>
+          </div>
+          <div class="tool-card">
+            <h4>DiffAb</h4>
+            <p data-i="s2-6-diffab">抗体 CDR 设计专用扩散模型</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ CH 3 ════════════ -->
+<div class="chapter" id="ch3">
+  <div class="chapter-header">
+    <div class="chapter-num">03</div>
+    <div>
+      <div class="chapter-title"><span data-i="ch3-title">计算工具全景</span></div>
+      <div class="chapter-desc"><span data-i="ch3-desc">De novo VHH 设计管线中的软件栈</span></div>
+    </div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="section open">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s3-1">骨架生成 (Backbone Generation)</span></button>
+      <div class="section-content">
+        <div class="tool-grid">
+          <div class="tool-card">
+            <h4>RFdiffusion</h4>
+            <p data-i="s3-1-rfd">SE(3) 扩散模型，蛋白质骨架从噪声中生成</p>
+          </div>
+          <div class="tool-card">
+            <h4>RFantibody</h4>
+            <p data-i="s3-1-rfa">抗体特化版 RFdiffusion，CDR-specific 扩散</p>
+          </div>
+          <div class="tool-card">
+            <h4>FrameDiff</h4>
+            <p data-i="s3-1-fd">基于 SE(3) 帧的骨架扩散生成</p>
+          </div>
+          <div class="tool-card">
+            <h4>Chroma</h4>
+            <p data-i="s3-1-ch">Generate Bio 的条件蛋白质设计模型</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s3-2">序列设计 (Sequence Design)</span></button>
+      <div class="section-content">
+        <div class="tool-grid">
+          <div class="tool-card">
+            <h4>ProteinMPNN</h4>
+            <p data-i="s3-2-mpnn">GNN 反向折叠，骨架 → 序列</p>
+          </div>
+          <div class="tool-card">
+            <h4>LigandMPNN</h4>
+            <p data-i="s3-2-lig">小分子配体感知的反向折叠</p>
+          </div>
+          <div class="tool-card">
+            <h4>ESM-IF</h4>
+            <p data-i="s3-2-esm">结构条件的逆折叠语言模型</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s3-3">结构预测与验证 (Validation)</span></button>
+      <div class="section-content">
+        <div class="tool-grid">
+          <div class="tool-card">
+            <h4>AlphaFold3</h4>
+            <p data-i="s3-3-af3">DeepMind 共折叠模型，扩散式结构预测</p>
+          </div>
+          <div class="tool-card">
+            <h4>Boltz-2</h4>
+            <p data-i="s3-3-b2">开源 AF3 替代，antigen-antibody 特化</p>
+          </div>
+          <div class="tool-card">
+            <h4>Chai-1</h4>
+            <p data-i="s3-3-chai">多模态共折叠，亲和力排序</p>
+          </div>
+          <div class="tool-card">
+            <h4>RF2 (RoseTTAFold2)</h4>
+            <p data-i="s3-3-rf2">Baker Lab 三轨架构结构预测</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s3-4">可开发性评估 (Developability)</span></button>
+      <div class="section-content">
+        <div class="tool-grid">
+          <div class="tool-card">
+            <h4>TAP (Therapeutic Antibody Profiler)</h4>
+            <p data-i="s3-4-tap">5 项可开发性指标快速评估</p>
+          </div>
+          <div class="tool-card">
+            <h4>Hu-mAb</h4>
+            <p data-i="s3-4-hu">人源化程度打分</p>
+          </div>
+          <div class="tool-card">
+            <h4>CamSol</h4>
+            <p data-i="s3-4-cam">溶解度预测</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ CH 4 ════════════ -->
+<div class="chapter" id="ch4">
+  <div class="chapter-header">
+    <div class="chapter-num">04</div>
+    <div>
+      <div class="chapter-title"><span data-i="ch4-title">线性代数 × 纳米抗体设计</span></div>
+      <div class="chapter-desc"><span data-i="ch4-desc">向量空间、矩阵运算如何驱动结构建模</span></div>
+    </div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s4-1">嵌入表示：残基 → 高维向量</span></button>
+      <div class="section-content">
+        <p data-i="s4-1-p1">每个氨基酸残基被编码为高维向量 (embedding)。在 RFdiffusion 中，残基 node features 包含坐标、残基类型 one-hot 和位置编码。整个蛋白质可表示为矩阵 X ∈ ℝ^{N×d}，其中 N 为残基数、d 为嵌入维度。</p>
+        <div class="formula">
+          X = [x₁, x₂, ..., xₙ]ᵀ ∈ ℝ^{N×d}<br>
+          xᵢ = Embed(residue_type) + PE(position)
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s4-2">注意力机制的矩阵运算</span></button>
+      <div class="section-content">
+        <p data-i="s4-2-p1">Transformer 的自注意力在 RFdiffusion 和 AF3 中均为核心组件。Query-Key-Value 的矩阵乘法和 softmax 归一化是线性代数的直接应用。</p>
+        <div class="formula">
+          Attention(Q, K, V) = softmax(QKᵀ / √d_k) · V<br>
+          Q = XW_Q,  K = XW_K,  V = XW_V
+        </div>
+        <div class="callout" data-i="s4-2-callout">
+          在抗体设计中，Q/K/V 矩阵编码残基间的空间距离和序列关系，注意力权重反映了残基间的接触概率。
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s4-3">SE(3) 等变性与旋转矩阵</span></button>
+      <div class="section-content">
+        <p data-i="s4-3-p1">蛋白质结构不依赖于坐标系的选择。SE(3) 等变神经网络保证：若输入旋转/平移，输出做相同变换。旋转用 3×3 正交矩阵 R ∈ SO(3) 表示，平移用向量 t ∈ ℝ³。</p>
+        <div class="formula">
+          T = (R, t) ∈ SE(3), where R ∈ SO(3), t ∈ ℝ³<br>
+          f(T·x) = T·f(x)   [equivariance]<br>
+          RRᵀ = I,  det(R) = 1
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s4-4">图邻接矩阵与消息传递</span></button>
+      <div class="section-content">
+        <p data-i="s4-4-p1">ProteinMPNN 将蛋白质建模为 k-NN 图。邻接矩阵 A ∈ {0,1}^{N×N} 编码残基间的空间邻接关系。消息传递 (message passing) 在图上聚合邻居信息。</p>
+        <div class="formula">
+          hᵢ^{(l+1)} = Update(hᵢ^{(l)}, Aggregate({m_{j→i} | j ∈ N(i)}))<br>
+          m_{j→i} = Message(hⱼ^{(l)}, eⱼᵢ)
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s4-5">特征值分解与 PCA 降维</span></button>
+      <div class="section-content">
+        <p data-i="s4-5-p1">在纳米抗体序列空间分析中，PCA (主成分分析) 用于高维序列嵌入的降维可视化。协方差矩阵的特征值分解揭示序列变异的主要方向。</p>
+        <div class="formula">
+          Σ = (1/n) Xᵀ X<br>
+          Σ = UΛUᵀ (eigendecomposition)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ CH 5 ════════════ -->
+<div class="chapter" id="ch5">
+  <div class="chapter-header">
+    <div class="chapter-num">05</div>
+    <div>
+      <div class="chapter-title"><span data-i="ch5-title">微积分 × 结构扩散与优化</span></div>
+      <div class="chapter-desc"><span data-i="ch5-desc">梯度下降、反向传播如何训练蛋白质生成模型</span></div>
+    </div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s5-1">损失函数与梯度下降</span></button>
+      <div class="section-content">
+        <p data-i="s5-1-p1">所有深度学习蛋白质设计模型的训练都依赖于损失函数的梯度最小化。Adam 优化器使用一阶和二阶矩估计自适应调节学习率。</p>
+        <div class="formula">
+          θ_{t+1} = θ_t − η · m̂_t / (√v̂_t + ε)<br>
+          m_t = β₁m_{t-1} + (1−β₁)∇L<br>
+          v_t = β₂v_{t-1} + (1−β₂)(∇L)²
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s5-2">扩散过程的微分方程 (SDE)</span></button>
+      <div class="section-content">
+        <p data-i="s5-2-p1">RFdiffusion 的正向过程可表示为随机微分方程 (SDE)。从数据分布 p_data 到高斯噪声的连续路径。反向采样对应逆时间 SDE。</p>
+        <div class="formula">
+          dx = f(x,t)dt + g(t)dW  [forward SDE]<br>
+          dx = [f(x,t) − g(t)²∇_x log p_t(x)]dt + g(t)dW̄  [reverse SDE]
+        </div>
+        <div class="callout violet" data-i="s5-2-callout">
+          Score function ∇_x log p_t(x) 是扩散模型的核心 —— 训练神经网络估计此函数。
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s5-3">链式法则与反向传播</span></button>
+      <div class="section-content">
+        <p data-i="s5-3-p1">反向传播 (backpropagation) 是微积分链式法则的直接应用。在 ProteinMPNN 中，通过自回归序列生成的每一步，梯度沿计算图反向传播更新权重。</p>
+        <div class="formula">
+          ∂L/∂W₁ = (∂L/∂y) · (∂y/∂h) · (∂h/∂W₁)<br>
+          [chain rule applied layer by layer]
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s5-4">BindCraft: AF2 loss 的梯度回传</span></button>
+      <div class="section-content">
+        <p data-i="s5-4-p1">BindCraft 将 AlphaFold2 的置信度指标 (pAE, pLDDT) 作为可微分的目标函数。通过 softmax 温度退火策略直接在序列空间中梯度优化，跳过骨架生成步骤。</p>
+        <div class="formula">
+          L_bind = −ipTM(AF2(seq)) + λ · L_regularize<br>
+          seq ← seq − η · ∂L_bind/∂seq  (via Gumbel-softmax)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ CH 6 ════════════ -->
+<div class="chapter" id="ch6">
+  <div class="chapter-header">
+    <div class="chapter-num">06</div>
+    <div>
+      <div class="chapter-title"><span data-i="ch6-title">概率统计 × 序列生成与评估</span></div>
+      <div class="chapter-desc"><span data-i="ch6-desc">贝叶斯推断、采样策略、评估指标</span></div>
+    </div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s6-1">自回归序列概率建模</span></button>
+      <div class="section-content">
+        <p data-i="s6-1-p1">ProteinMPNN 和 ESM-IF 将序列设计建模为自回归条件概率。给定骨架结构 X，每个位置的氨基酸概率取决于已生成的前序残基。</p>
+        <div class="formula">
+          P(S|X) = ∏_{i=1}^{N} P(sᵢ | s₁,...,s_{i-1}, X)<br>
+          Perplexity = exp(−(1/N) ∑ log P(sᵢ*))
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s6-2">DDPM 的正向/反向概率</span></button>
+      <div class="section-content">
+        <p data-i="s6-2-p1">去噪扩散概率模型 (DDPM) 的正向过程是预定的马尔科夫链，反向过程由参数化的高斯转移核建模。ELBO (证据下界) 提供了训练目标。</p>
+        <div class="formula">
+          ELBO = E_q[log p_θ(x₀|x₁)] − KL(q(x_T|x₀) ∥ p(x_T))<br>
+          − ∑_{t=2}^{T} KL(q(x_{t-1}|x_t,x₀) ∥ p_θ(x_{t-1}|x_t))
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s6-3">采样策略：Temperature 与 Top-k</span></button>
+      <div class="section-content">
+        <p data-i="s6-3-p1">在 ProteinMPNN 中，采样温度 T 控制序列多样性。T→0 趋于贪婪选择（最高概率），T→∞ 趋于均匀随机。Top-k 采样限制候选集大小。</p>
+        <div class="formula">
+          P_T(sᵢ = a) = exp(logit_a / T) / ∑_b exp(logit_b / T)
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s6-4">评估指标的统计学基础</span></button>
+      <div class="section-content">
+        <dl class="kv">
+          <dt>ipTM</dt><dd data-i="s6-4-iptm">界面 pTM score — 基于残基距离误差分布的置信度估计</dd>
+          <dt>pAE</dt><dd data-i="s6-4-pae">Predicted Aligned Error — 位置 i 相对于 j 的预测误差矩阵</dd>
+          <dt>pLDDT</dt><dd data-i="s6-4-plddt">Per-residue confidence — 对局部距离差异的分箱概率分布</dd>
+          <dt>Recovery rate</dt><dd data-i="s6-4-rr">序列恢复率 — 设计序列与天然序列的氨基酸一致比例</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ CH 7 ════════════ -->
+<div class="chapter" id="ch7">
+  <div class="chapter-header">
+    <div class="chapter-num">07</div>
+    <div>
+      <div class="chapter-title"><span data-i="ch7-title">RFdiffusion 中的数学</span></div>
+      <div class="chapter-desc"><span data-i="ch7-desc">扩散模型在蛋白质结构空间上的数学体系</span></div>
+    </div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s7-1">SE(3) 上的噪声调度</span></button>
+      <div class="section-content">
+        <p data-i="s7-1-p1">蛋白质骨架是 SE(3) 帧 (rotation + translation) 的序列。RFdiffusion 在旋转分量上施加 IGSO(3) 分布的噪声 (Isotropic Gaussian on SO(3))，在平移分量上施加标准高斯噪声。</p>
+        <div class="formula">
+          Frame_i = (Rᵢ, tᵢ) ∈ SE(3)<br>
+          Forward: R_t ~ IGSO3(R_{t-1}, σ_t),  t_t ~ N(√α_t · t_{t-1}, (1−α_t)I)
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s7-2">去噪网络与损失函数</span></button>
+      <div class="section-content">
+        <p data-i="s7-2-p1">去噪网络以加噪结构和时间步 t 为输入，预测干净结构。损失函数是预测帧与真实帧在 SE(3) 上的距离。</p>
+        <div class="formula">
+          L = ∑ᵢ [ ‖t̂ᵢ − tᵢ‖² + w_R · d_SO3(R̂ᵢ, Rᵢ) ]
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s7-3">条件生成：表位引导扩散</span></button>
+      <div class="section-content">
+        <p data-i="s7-3-p1">在纳米抗体设计中，靶标蛋白的表位残基作为条件信息传入去噪网络。这实现了"在指定表位上生成结合骨架"。数学上是条件概率 p(backbone | epitope)。</p>
+        <div class="callout teal" data-i="s7-3-callout">
+          条件扩散 = classifier-free guidance 或 inpainting 策略，将表位坐标作为固定的"已知"区域。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ CH 8 ════════════ -->
+<div class="chapter" id="ch8">
+  <div class="chapter-header">
+    <div class="chapter-num">08</div>
+    <div>
+      <div class="chapter-title"><span data-i="ch8-title">ProteinMPNN 中的数学</span></div>
+      <div class="chapter-desc"><span data-i="ch8-desc">消息传递网络的图运算与序列似然</span></div>
+    </div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s8-1">蛋白质图编码</span></button>
+      <div class="section-content">
+        <p data-i="s8-1-p1">ProteinMPNN 将蛋白质骨架表示为稀疏图 G = (V, E)。节点 = Cα 原子，边 = k 近邻 (通常 k=30)。节点特征包含二面角 (φ, ψ, ω)，边特征包含距离和方向向量。</p>
+        <div class="formula">
+          V = {v₁, ..., vₙ},  E = {(i,j) | j ∈ KNN(i, k=30)}<br>
+          Node features: (φ, ψ, ω, residue_type_onehot)<br>
+          Edge features: (d_ij, unit_vector_ij, RBF(d_ij))
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s8-2">消息传递层</span></button>
+      <div class="section-content">
+        <p data-i="s8-2-p1">每层消息传递由三步组成：(1) 计算边消息，(2) 聚合邻居消息，(3) 更新节点表示。3 层堆叠捕获约 90Å 半径内的结构上下文。</p>
+        <div class="formula">
+          mᵢⱼ = MLP_edge([hᵢ ∥ hⱼ ∥ eᵢⱼ])<br>
+          Mᵢ = ∑_{j∈N(i)} mᵢⱼ<br>
+          hᵢ ← MLP_node([hᵢ ∥ Mᵢ])
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s8-3">自回归解码与交叉熵</span></button>
+      <div class="section-content">
+        <p data-i="s8-3-p1">解码阶段按随机排列顺序逐位生成氨基酸。每步的 20 类概率通过 softmax 输出，训练目标为交叉熵损失。</p>
+        <div class="formula">
+          logits_i = W_out · h_i^{(L)} + b<br>
+          P(sᵢ = a) = softmax(logits_i)_a<br>
+          L_CE = −∑ᵢ log P(sᵢ = sᵢ*)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ CH 9 ════════════ -->
+<div class="chapter" id="ch9">
+  <div class="chapter-header">
+    <div class="chapter-num">09</div>
+    <div>
+      <div class="chapter-title"><span data-i="ch9-title">结构验证中的数学 (AF3 / Boltz-2)</span></div>
+      <div class="chapter-desc"><span data-i="ch9-desc">共折叠预测中的 pairwise 表示与置信度估计</span></div>
+    </div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s9-1">Evoformer / Pairformer</span></button>
+      <div class="section-content">
+        <p data-i="s9-1-p1">AF3 使用 Pairformer (AF2 为 Evoformer) 处理 MSA 和 pair 表示。核心运算：行/列注意力在 pair representation z ∈ ℝ^{N×N×c} 上的三角更新 (triangle update)，数学上等价于矩阵乘积的特殊形式。</p>
+        <div class="formula">
+          z_ij ← z_ij + ∑_k (a_ik · b_kj)  [outgoing triangle]<br>
+          z_ij ← z_ij + ∑_k (a_ki · b_kj)  [incoming triangle]
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s9-2">AF3 扩散模块</span></button>
+      <div class="section-content">
+        <p data-i="s9-2-p1">AF3 用扩散模型替代了 AF2 的 Structure Module。在原子坐标空间直接扩散，支持蛋白质、核酸、小分子和离子的联合建模。</p>
+        <div class="formula">
+          x_atom_t = √ᾱ_t · x_atom_0 + √(1−ᾱ_t) · ε<br>
+          Loss = E_t,ε [‖ε − ε_θ(x_atom_t, t, conditioning)‖²]
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s9-3">ipTM 与 pAE 的概率解释</span></button>
+      <div class="section-content">
+        <p data-i="s9-3-p1">ipTM (interface predicted TM-score) 由链间残基对的距离误差分布计算得出。pAE 矩阵的每个元素 pAE[i,j] 表示"残基 i 在以残基 j 为参考对齐后的预测位置误差"的概率分布，取 argmax bin 作为预测值。</p>
+        <div class="formula">
+          TM-score = (1/N) ∑ᵢ 1/(1 + (dᵢ/d₀)²)<br>
+          ipTM = weighted average over interface residue pairs
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ CH 10 ════════════ -->
+<div class="chapter" id="ch10">
+  <div class="chapter-header">
+    <div class="chapter-num">10</div>
+    <div>
+      <div class="chapter-title"><span data-i="ch10-title">实战：RFantibody 管线数学拆解</span></div>
+      <div class="chapter-desc"><span data-i="ch10-desc">从表位选择到 hit 序列的端到端数学流程</span></div>
+    </div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="section open">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s10-1">Step 1: 表位定义 → 条件编码</span></button>
+      <div class="section-content">
+        <p data-i="s10-1-p1">选取靶蛋白表位残基 (hotspot residues)，将其坐标作为 SE(3) 条件编码传入 RFdiffusion。数学：条件概率 p(CDR_backbone | epitope_coords)。</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s10-2">Step 2: CDR 骨架扩散生成</span></button>
+      <div class="section-content">
+        <p data-i="s10-2-p1">RFantibody 在 SE(3) 上执行 T 步反向扩散，从高斯噪声中采样 CDR loop 骨架。Framework 区域保持固定。关键超参：扩散步数 T、噪声调度 β_t。</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s10-3">Step 3: MPNN 序列设计</span></button>
+      <div class="section-content">
+        <p data-i="s10-3-p1">ProteinMPNN 接收生成的骨架结构，通过 GNN 编码 + 自回归解码输出 CDR 序列。采样温度 T=0.1 (保守) ~ 0.5 (多样)，通常生成 100–1000 条候选序列。</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s10-4">Step 4: AF3/Boltz-2 结构验证</span></button>
+      <div class="section-content">
+        <p data-i="s10-4-p1">将设计序列与靶标序列一起输入 AF3 或 Boltz-2 进行共折叠预测。过滤标准：ipTM > 0.7, pAE_interaction &lt; 10, CDR RMSD &lt; 2Å (与设计骨架对比)。</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <button class="section-toggle"><span class="arrow">▶</span> <span data-i="s10-5">Step 5: 可开发性过滤 → 候选排序</span></button>
+      <div class="section-content">
+        <p data-i="s10-5-p1">通过通过的候选进入可开发性评估：聚集倾向、溶解度 (CamSol)、人源化评分 (Hu-mAb)、TAP 5 指标。最终按综合评分排序输出 Top-N 进入实验验证。</p>
+        <div class="callout" data-i="s10-5-callout">
+          NabTriad 平台集成了这一完整管线：NabPanning (序列亲和力) → NabDock (AF3/MD 结构) → NabSafe (可开发性/免疫原性)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer class="footer">
+  <span data-i="footer">© 2026 NbMath — De Novo Nanobody Design × Mathematical Foundations. Trilingual Interactive Reference.</span>
+</footer>
+
+<script>
+// ── i18n DATA ──
+const T = {
+  "hero-title": {
+    cn: "纳米抗体 De Novo 设计\n数学基础与工具全景",
+    kr: "나노바디 De Novo 설계\n수학적 기초와 도구 전경",
+    en: "De Novo Nanobody Design\nMathematical Foundations & Tool Landscape"
+  },
+  "hero-sub": {
+    cn: "从 RFdiffusion 到 ProteinMPNN，从线性代数到扩散模型概率论 —— 一本交互式三语参考手册",
+    kr: "RFdiffusion에서 ProteinMPNN까지, 선형대수에서 확산 모델 확률론까지 — 삼개국어 인터랙티브 레퍼런스",
+    en: "From RFdiffusion to ProteinMPNN, from linear algebra to diffusion-model probability — a trilingual interactive reference"
+  },
+  "toc-heading": { cn: "目录", kr: "목차", en: "Table of Contents" },
+  "toc-1": { cn: "纳米抗体 De Novo 设计概览", kr: "나노바디 De Novo 설계 개요", en: "De Novo Nanobody Design Overview" },
+  "toc-2": { cn: "核心论文与里程碑", kr: "핵심 논문과 마일스톤", en: "Core Papers & Milestones" },
+  "toc-3": { cn: "计算工具全景", kr: "계산 도구 전경", en: "Computational Tool Landscape" },
+  "toc-4": { cn: "线性代数 × 纳米抗体设计", kr: "선형대수 × 나노바디 설계", en: "Linear Algebra × Nanobody Design" },
+  "toc-5": { cn: "微积分 × 结构扩散与优化", kr: "미적분 × 구조 확산과 최적화", en: "Calculus × Structural Diffusion & Optimization" },
+  "toc-6": { cn: "概率统计 × 序列生成与评估", kr: "확률통계 × 서열 생성과 평가", en: "Probability & Statistics × Sequence Generation" },
+  "toc-7": { cn: "RFdiffusion 中的数学", kr: "RFdiffusion의 수학", en: "Mathematics in RFdiffusion" },
+  "toc-8": { cn: "ProteinMPNN 中的数学", kr: "ProteinMPNN의 수학", en: "Mathematics in ProteinMPNN" },
+  "toc-9": { cn: "结构验证中的数学 (AF3 / Boltz-2)", kr: "구조 검증의 수학 (AF3 / Boltz-2)", en: "Mathematics in Structure Validation (AF3 / Boltz-2)" },
+  "toc-10": { cn: "实战：RFantibody 管线数学拆解", kr: "실전: RFantibody 파이프라인 수학 분해", en: "Practice: RFantibody Pipeline Math Walkthrough" },
+
+  "ch1-title": { cn: "纳米抗体 De Novo 设计概览", kr: "나노바디 De Novo 설계 개요", en: "De Novo Nanobody Design Overview" },
+  "ch1-desc": { cn: "从骆驼科 VHH 到计算设计的范式跃迁", kr: "낙타과 VHH에서 계산 설계로의 패러다임 전환", en: "From camelid VHH to computational design paradigm shift" },
+  "s1-1": { cn: "什么是纳米抗体 (VHH)", kr: "나노바디 (VHH)란 무엇인가", en: "What is a Nanobody (VHH)" },
+  "s1-1-p1": {
+    cn: "纳米抗体 (Nanobody / VHH) 是来源于骆驼科动物的重链抗体可变区 (VHH domain)，分子量仅约 12–15 kDa，是最小的天然抗原结合片段。与传统 IgG (~150 kDa) 和 scFv (~25 kDa) 相比，VHH 具有高稳定性、低免疫原性、易于基因工程改造等优势。",
+    kr: "나노바디 (Nanobody / VHH)는 낙타과 동물의 중쇄 항체 가변 영역 (VHH domain)으로, 분자량은 약 12–15 kDa이며 자연계에서 가장 작은 항원 결합 단편입니다. 기존 IgG (~150 kDa), scFv (~25 kDa)에 비해 높은 안정성, 낮은 면역원성, 용이한 유전공학적 개조가 가능합니다.",
+    en: "Nanobodies (VHH) are the variable domains of heavy-chain-only antibodies found in camelids, weighing just 12–15 kDa — the smallest natural antigen-binding fragments. Compared to conventional IgG (~150 kDa) and scFv (~25 kDa), VHHs offer high stability, low immunogenicity, and ease of genetic engineering."
+  },
+  "kv-size": { cn: "分子量", kr: "분자량", en: "Molecular weight" },
+  "kv-source": { cn: "来源", kr: "유래", en: "Source" },
+  "kv-source-v": { cn: "骆驼、羊驼、鲨鱼 (VNAR)", kr: "낙타, 알파카, 상어 (VNAR)", en: "Camel, alpaca, shark (VNAR)" },
+  "kv-cdr": { cn: "CDR 区域", kr: "CDR 영역", en: "CDR regions" },
+  "kv-app": { cn: "应用", kr: "응용", en: "Applications" },
+  "kv-app-v": { cn: "诊断、治疗、成像、NDC", kr: "진단, 치료, 이미징, NDC", en: "Diagnostics, therapeutics, imaging, NDC" },
+  "s1-2": { cn: "De Novo 设计 vs 传统免疫筛选", kr: "De Novo 설계 vs 기존 면역 스크리닝", en: "De Novo Design vs Traditional Immune Screening" },
+  "s1-2-p1": {
+    cn: "传统路径需要骆驼/羊驼免疫 → 噬菌体展示 → 淘选 → 亲和力成熟，耗时 6–12 个月。De novo 计算设计利用结构生成模型（如 RFdiffusion）直接在目标表位上生成 CDR 骨架，再用序列设计模型（如 ProteinMPNN）填充氨基酸，周期压缩至数天。",
+    kr: "기존 경로는 낙타/알파카 면역 → 파지 디스플레이 → 패닝 → 친화도 성숙으로 6–12개월이 소요됩니다. De novo 계산 설계는 RFdiffusion 같은 구조 생성 모델로 표적 에피토프 위에 CDR 골격을 직접 생성하고 ProteinMPNN으로 아미노산 서열을 채워 며칠로 단축합니다.",
+    en: "The traditional path requires camelid immunization → phage display → panning → affinity maturation, taking 6–12 months. De novo computational design uses structure-generation models (RFdiffusion) to generate CDR backbones directly on the target epitope, then fills amino acid sequences with ProteinMPNN — compressing the cycle to days."
+  },
+  "s1-2-callout": {
+    cn: "核心管线 (RFantibody flow)：RFdiffusion (CDR 骨架) → ProteinMPNN (CDR 序列) → RF2/AF3 (验证过滤)",
+    kr: "핵심 파이프라인 (RFantibody flow): RFdiffusion (CDR 골격) → ProteinMPNN (CDR 서열) → RF2/AF3 (검증 필터링)",
+    en: "Core pipeline (RFantibody flow): RFdiffusion (CDR backbone) → ProteinMPNN (CDR sequence) → RF2/AF3 (validation filtering)"
+  },
+  "s1-3": { cn: "NDC (纳米抗体药物偶联物)", kr: "NDC (나노바디-약물 접합체)", en: "NDC (Nanobody-Drug Conjugate)" },
+  "s1-3-p1": {
+    cn: "纳米抗体药物偶联物 (Nanobody-Drug Conjugate, NDC) 将细胞毒载荷通过可切割连接子与 VHH 偶联。相比 ADC，NDC 的肿瘤穿透能力更强、清除速率更快。",
+    kr: "나노바디-약물 접합체 (NDC)는 세포독성 약물을 절단 가능한 링커로 VHH에 결합합니다. ADC 대비 종양 침투력이 뛰어나고 체내 청소율이 빠릅니다.",
+    en: "Nanobody-Drug Conjugates (NDCs) link cytotoxic payloads to VHH via cleavable linkers. Compared to ADCs, NDCs offer superior tumor penetration and faster clearance."
+  },
+  "kv-arch": { cn: "架构", kr: "구조", en: "Architecture" },
+  "kv-conj": { cn: "偶联策略", kr: "접합 전략", en: "Conjugation" },
+  "kv-link": { cn: "连接子", kr: "링커", en: "Linker" },
+  "kv-payload": { cn: "载荷", kr: "약물 부하", en: "Payload" },
+
+  "ch2-title": { cn: "核心论文与里程碑", kr: "핵심 논문과 마일스톤", en: "Core Papers & Milestones" },
+  "ch2-desc": { cn: "塑造纳米抗体 de novo 设计领域的关键文献", kr: "나노바디 de novo 설계를 형성한 핵심 문헌", en: "Key literature shaping the nanobody de novo design field" },
+  "s2-1": { cn: "RFdiffusion (Watson et al., 2023)", kr: "RFdiffusion (Watson et al., 2023)", en: "RFdiffusion (Watson et al., 2023)" },
+  "s2-1-p1": {
+    cn: "RFdiffusion 将去噪扩散概率模型 (DDPM) 应用于蛋白质骨架生成。通过在 SE(3) 上定义噪声注入过程，逐步向 Cα 坐标添加高斯噪声，再训练神经网络逆转此过程。该模型首次实现了对给定靶点表位的条件骨架设计。",
+    kr: "RFdiffusion은 잡음 제거 확산 확률 모델 (DDPM)을 단백질 골격 생성에 적용했습니다. SE(3) 위에서 Cα 좌표에 가우시안 노이즈를 점진적으로 추가한 뒤, 신경망으로 이 과정을 역전시킵니다. 표적 에피토프를 조건으로 한 골격 설계를 최초로 구현했습니다.",
+    en: "RFdiffusion applies denoising diffusion probabilistic models (DDPM) to protein backbone generation. It defines a noise injection process on SE(3), gradually adding Gaussian noise to Cα coordinates, then trains a neural network to reverse this process. It was the first to enable conditional backbone design on a given epitope."
+  },
+  "s2-2": { cn: "RFantibody (2024)", kr: "RFantibody (2024)", en: "RFantibody (2024)" },
+  "s2-2-p1": {
+    cn: "RFantibody 是 RFdiffusion 的抗体特化版本。在扩散训练中加入了抗体框架区 (FWR) 约束和 CDR 长度分布先验，使生成骨架的 CDR 几何形态与天然抗体数据库（SAbDab）更一致。支持固定 framework、仅扩散 CDR-H3 或全部 CDR。",
+    kr: "RFantibody는 RFdiffusion의 항체 특화 버전입니다. 항체 프레임워크 (FWR) 제약과 CDR 길이 분포 사전을 추가하여, 생성된 골격의 CDR 기하학이 SAbDab 데이터베이스와 일치하도록 합니다. 프레임워크 고정, CDR-H3만 확산, 또는 전체 CDR 확산을 지원합니다.",
+    en: "RFantibody is an antibody-specialized version of RFdiffusion. It incorporates framework (FWR) constraints and CDR length distribution priors into diffusion training, making CDR geometry more consistent with the SAbDab database. Supports fixed framework with CDR-H3-only or full-CDR diffusion."
+  },
+  "s2-2-callout": {
+    cn: "关键创新：CDR-specific diffusion — 仅在 CDR loop 区域执行噪声扩散，保持 framework 不变。",
+    kr: "핵심 혁신: CDR-specific diffusion — CDR 루프 영역에서만 노이즈 확산을 수행, 프레임워크는 고정.",
+    en: "Key innovation: CDR-specific diffusion — noise diffusion only on CDR loops, keeping the framework fixed."
+  },
+  "s2-3": { cn: "ProteinMPNN (Dauparas et al., 2022)", kr: "ProteinMPNN (Dauparas et al., 2022)", en: "ProteinMPNN (Dauparas et al., 2022)" },
+  "s2-3-p1": {
+    cn: "ProteinMPNN 是一个消息传递神经网络 (Message Passing Neural Network)，在给定蛋白质骨架结构的条件下自回归地预测氨基酸序列。核心数学：图神经网络中的节点/边信息聚合 + 交叉熵损失的序列似然最大化。",
+    kr: "ProteinMPNN은 메시지 패싱 신경망 (MPNN)으로, 주어진 단백질 골격 구조 조건에서 아미노산 서열을 자기회귀적으로 예측합니다. 핵심 수학: 그래프 신경망의 노드/엣지 정보 집계 + 교차 엔트로피 손실의 서열 우도 최대화.",
+    en: "ProteinMPNN is a message passing neural network that autoregressively predicts amino acid sequences given a protein backbone structure. Core math: GNN node/edge aggregation + cross-entropy loss for sequence likelihood maximization."
+  },
+  "s2-4": { cn: "AlphaFold3 / Boltz-2 (结构验证)", kr: "AlphaFold3 / Boltz-2 (구조 검증)", en: "AlphaFold3 / Boltz-2 (Structure Validation)" },
+  "s2-4-p1": {
+    cn: "AlphaFold3 (Abramson et al., 2024) 使用扩散模块替代 AF2 的 Structure Module，支持蛋白质-蛋白质、蛋白质-小分子的共折叠预测。Boltz-2 (Wohlwend et al., 2025) 是开源替代方案，在抗体-抗原界面预测上表现优异。在 de novo 管线中，它们用于验证设计序列是否正确折叠并结合靶标。",
+    kr: "AlphaFold3 (Abramson et al., 2024)는 AF2의 Structure Module을 확산 모듈로 대체하여, 단백질-단백질, 단백질-소분자의 공동 폴딩 예측을 지원합니다. Boltz-2 (Wohlwend et al., 2025)는 오픈소스 대안으로, 항체-항원 인터페이스 예측에서 우수한 성능을 보입니다.",
+    en: "AlphaFold3 (Abramson et al., 2024) replaces AF2's Structure Module with a diffusion module, supporting protein-protein and protein-ligand co-folding. Boltz-2 (Wohlwend et al., 2025) is an open-source alternative excelling at antibody-antigen interface prediction. In de novo pipelines, they validate whether designed sequences fold correctly and bind the target."
+  },
+  "kv-metric": { cn: "关键指标", kr: "핵심 지표", en: "Key metrics" },
+  "kv-filter": { cn: "过滤标准", kr: "필터링 기준", en: "Filter criteria" },
+  "s2-5": { cn: "BindCraft (Pacesa et al., 2024)", kr: "BindCraft (Pacesa et al., 2024)", en: "BindCraft (Pacesa et al., 2024)" },
+  "s2-5-p1": {
+    cn: "BindCraft 将 AF2 的置信度指标 (pAE, pLDDT) 作为可微分的优化目标，直接在序列空间中进行梯度优化来设计蛋白结合体。无需先生成骨架。数学核心：softmax 温度退火 + AF2 loss 的梯度回传。",
+    kr: "BindCraft는 AF2의 신뢰도 지표 (pAE, pLDDT)를 미분 가능한 최적화 목표로 설정하여, 서열 공간에서 직접 기울기 최적화로 단백질 바인더를 설계합니다. 골격 생성 단계가 필요 없습니다.",
+    en: "BindCraft uses AF2 confidence metrics (pAE, pLDDT) as differentiable optimization objectives, directly gradient-optimizing in sequence space to design protein binders — no backbone generation step needed."
+  },
+  "s2-6": { cn: "其他关键模型", kr: "기타 핵심 모델", en: "Other Key Models" },
+  "s2-6-chai": { cn: "开源共折叠模型，抗体-抗原亲和力排序精度高", kr: "오픈소스 공동 폴딩 모델, 항체-항원 친화도 순위 정확도 높음", en: "Open-source co-folding model with high antibody-antigen affinity ranking accuracy" },
+  "s2-6-opendde": { cn: "抗体-抗原结合能打分模型", kr: "항체-항원 결합 에너지 스코어링 모델", en: "Antibody-antigen binding energy scoring model" },
+  "s2-6-esm": { cn: "大规模蛋白质语言模型的逆折叠方向", kr: "대규모 단백질 언어 모델의 역폴딩 방향", en: "Large protein language model for inverse folding" },
+  "s2-6-diffab": { cn: "抗体 CDR 设计专用扩散模型", kr: "항체 CDR 설계 전용 확산 모델", en: "Diffusion model specialized for antibody CDR design" },
+
+  "ch3-title": { cn: "计算工具全景", kr: "계산 도구 전경", en: "Computational Tool Landscape" },
+  "ch3-desc": { cn: "De novo VHH 设计管线中的软件栈", kr: "De novo VHH 설계 파이프라인의 소프트웨어 스택", en: "Software stack in the de novo VHH design pipeline" },
+  "s3-1": { cn: "骨架生成 (Backbone Generation)", kr: "골격 생성 (Backbone Generation)", en: "Backbone Generation" },
+  "s3-1-rfd": { cn: "SE(3) 扩散模型，蛋白质骨架从噪声中生成", kr: "SE(3) 확산 모델, 단백질 골격을 노이즈에서 생성", en: "SE(3) diffusion model generating protein backbones from noise" },
+  "s3-1-rfa": { cn: "抗体特化版 RFdiffusion，CDR-specific 扩散", kr: "항체 특화 RFdiffusion, CDR 특이적 확산", en: "Antibody-specialized RFdiffusion with CDR-specific diffusion" },
+  "s3-1-fd": { cn: "基于 SE(3) 帧的骨架扩散生成", kr: "SE(3) 프레임 기반 골격 확산 생성", en: "Frame-based backbone diffusion on SE(3)" },
+  "s3-1-ch": { cn: "Generate Bio 的条件蛋白质设计模型", kr: "Generate Bio의 조건부 단백질 설계 모델", en: "Conditional protein design model by Generate Bio" },
+  "s3-2": { cn: "序列设计 (Sequence Design)", kr: "서열 설계 (Sequence Design)", en: "Sequence Design" },
+  "s3-2-mpnn": { cn: "GNN 反向折叠，骨架 → 序列", kr: "GNN 역폴딩, 골격 → 서열", en: "GNN inverse folding, backbone → sequence" },
+  "s3-2-lig": { cn: "小分子配体感知的反向折叠", kr: "소분자 리간드 인식 역폴딩", en: "Ligand-aware inverse folding" },
+  "s3-2-esm": { cn: "结构条件的逆折叠语言模型", kr: "구조 조건 역폴딩 언어 모델", en: "Structure-conditioned inverse folding language model" },
+  "s3-3": { cn: "结构预测与验证 (Validation)", kr: "구조 예측과 검증 (Validation)", en: "Structure Prediction & Validation" },
+  "s3-3-af3": { cn: "DeepMind 共折叠模型，扩散式结构预测", kr: "DeepMind 공동 폴딩 모델, 확산 구조 예측", en: "DeepMind co-folding model with diffusion-based structure prediction" },
+  "s3-3-b2": { cn: "开源 AF3 替代，antigen-antibody 特化", kr: "오픈소스 AF3 대안, 항원-항체 특화", en: "Open-source AF3 alternative, antigen-antibody specialized" },
+  "s3-3-chai": { cn: "多模态共折叠，亲和力排序", kr: "다중 모달 공동 폴딩, 친화도 순위", en: "Multi-modal co-folding, affinity ranking" },
+  "s3-3-rf2": { cn: "Baker Lab 三轨架构结构预测", kr: "Baker Lab 3트랙 아키텍처 구조 예측", en: "Baker Lab three-track architecture structure prediction" },
+  "s3-4": { cn: "可开发性评估 (Developability)", kr: "개발 가능성 평가 (Developability)", en: "Developability Assessment" },
+  "s3-4-tap": { cn: "5 项可开发性指标快速评估", kr: "5가지 개발 가능성 지표 신속 평가", en: "5-metric rapid developability assessment" },
+  "s3-4-hu": { cn: "人源化程度打分", kr: "인간화 정도 스코어링", en: "Humanization scoring" },
+  "s3-4-cam": { cn: "溶解度预测", kr: "용해도 예측", en: "Solubility prediction" },
+
+  "ch4-title": { cn: "线性代数 × 纳米抗体设计", kr: "선형대수 × 나노바디 설계", en: "Linear Algebra × Nanobody Design" },
+  "ch4-desc": { cn: "向量空间、矩阵运算如何驱动结构建模", kr: "벡터 공간, 행렬 연산이 구조 모델링을 어떻게 구동하는가", en: "How vector spaces and matrix operations drive structure modeling" },
+  "s4-1": { cn: "嵌入表示：残基 → 高维向量", kr: "임베딩 표현: 잔기 → 고차원 벡터", en: "Embedding: Residue → High-dimensional Vector" },
+  "s4-1-p1": {
+    cn: "每个氨基酸残基被编码为高维向量 (embedding)。在 RFdiffusion 中，残基 node features 包含坐标、残基类型 one-hot 和位置编码。整个蛋白质可表示为矩阵 X ∈ ℝ^{N×d}，其中 N 为残基数、d 为嵌入维度。",
+    kr: "각 아미노산 잔기는 고차원 벡터 (임베딩)로 인코딩됩니다. RFdiffusion에서 잔기 node features는 좌표, 잔기 유형 one-hot, 위치 인코딩을 포함합니다. 전체 단백질은 행렬 X ∈ ℝ^{N×d}로 표현됩니다.",
+    en: "Each amino acid residue is encoded as a high-dimensional vector (embedding). In RFdiffusion, residue node features include coordinates, residue-type one-hot encoding, and positional encoding. The entire protein is represented as matrix X ∈ ℝ^{N×d}."
+  },
+  "s4-2": { cn: "注意力机制的矩阵运算", kr: "어텐션 메커니즘의 행렬 연산", en: "Matrix Operations in Attention Mechanisms" },
+  "s4-2-p1": {
+    cn: "Transformer 的自注意力在 RFdiffusion 和 AF3 中均为核心组件。Query-Key-Value 的矩阵乘法和 softmax 归一化是线性代数的直接应用。",
+    kr: "Transformer의 자기 주의(self-attention)는 RFdiffusion과 AF3 모두에서 핵심 구성 요소입니다. Query-Key-Value의 행렬 곱셈과 softmax 정규화는 선형대수의 직접적 응용입니다.",
+    en: "Transformer self-attention is a core component in both RFdiffusion and AF3. The QKV matrix multiplication and softmax normalization are direct applications of linear algebra."
+  },
+  "s4-2-callout": {
+    cn: "在抗体设计中，Q/K/V 矩阵编码残基间的空间距离和序列关系，注意力权重反映了残基间的接触概率。",
+    kr: "항체 설계에서 Q/K/V 행렬은 잔기 간 공간 거리와 서열 관계를 인코딩하며, 어텐션 가중치는 잔기 간 접촉 확률을 반영합니다.",
+    en: "In antibody design, Q/K/V matrices encode inter-residue spatial distances and sequence relationships; attention weights reflect residue-residue contact probabilities."
+  },
+  "s4-3": { cn: "SE(3) 等变性与旋转矩阵", kr: "SE(3) 등변성과 회전 행렬", en: "SE(3) Equivariance & Rotation Matrices" },
+  "s4-3-p1": {
+    cn: "蛋白质结构不依赖于坐标系的选择。SE(3) 等变神经网络保证：若输入旋转/平移，输出做相同变换。旋转用 3×3 正交矩阵 R ∈ SO(3) 表示，平移用向量 t ∈ ℝ³。",
+    kr: "단백질 구조는 좌표계 선택에 의존하지 않습니다. SE(3) 등변 신경망은 입력을 회전/이동하면 출력도 동일하게 변환됨을 보장합니다. 회전은 3×3 직교 행렬 R ∈ SO(3), 이동은 벡터 t ∈ ℝ³로 표현됩니다.",
+    en: "Protein structures are independent of coordinate frame choice. SE(3)-equivariant neural networks guarantee: if the input is rotated/translated, the output transforms identically. Rotations are 3×3 orthogonal matrices R ∈ SO(3), translations are vectors t ∈ ℝ³."
+  },
+  "s4-4": { cn: "图邻接矩阵与消息传递", kr: "그래프 인접 행렬과 메시지 패싱", en: "Graph Adjacency Matrices & Message Passing" },
+  "s4-4-p1": {
+    cn: "ProteinMPNN 将蛋白质建模为 k-NN 图。邻接矩阵 A ∈ {0,1}^{N×N} 编码残基间的空间邻接关系。消息传递 (message passing) 在图上聚合邻居信息。",
+    kr: "ProteinMPNN은 단백질을 k-NN 그래프로 모델링합니다. 인접 행렬 A ∈ {0,1}^{N×N}은 잔기 간 공간 인접 관계를 인코딩하며, 메시지 패싱이 그래프 위에서 이웃 정보를 집계합니다.",
+    en: "ProteinMPNN models proteins as k-NN graphs. The adjacency matrix A ∈ {0,1}^{N×N} encodes spatial adjacency between residues. Message passing aggregates neighbor information on the graph."
+  },
+  "s4-5": { cn: "特征值分解与 PCA 降维", kr: "고유값 분해와 PCA 차원 축소", en: "Eigendecomposition & PCA Dimensionality Reduction" },
+  "s4-5-p1": {
+    cn: "在纳米抗体序列空间分析中，PCA (主成分分析) 用于高维序列嵌入的降维可视化。协方差矩阵的特征值分解揭示序列变异的主要方向。",
+    kr: "나노바디 서열 공간 분석에서 PCA (주성분 분석)는 고차원 서열 임베딩의 차원 축소 시각화에 사용됩니다. 공분산 행렬의 고유값 분해가 서열 변이의 주요 방향을 드러냅니다.",
+    en: "In nanobody sequence-space analysis, PCA is used for dimensionality reduction of high-dimensional sequence embeddings. Eigendecomposition of the covariance matrix reveals the principal directions of sequence variation."
+  },
+
+  "ch5-title": { cn: "微积分 × 结构扩散与优化", kr: "미적분 × 구조 확산과 최적화", en: "Calculus × Structural Diffusion & Optimization" },
+  "ch5-desc": { cn: "梯度下降、反向传播如何训练蛋白质生成模型", kr: "경사 하강법과 역전파가 단백질 생성 모델을 어떻게 훈련하는가", en: "How gradient descent and backpropagation train protein generation models" },
+  "s5-1": { cn: "损失函数与梯度下降", kr: "손실 함수와 경사 하강법", en: "Loss Functions & Gradient Descent" },
+  "s5-1-p1": {
+    cn: "所有深度学习蛋白质设计模型的训练都依赖于损失函数的梯度最小化。Adam 优化器使用一阶和二阶矩估计自适应调节学习率。",
+    kr: "모든 딥러닝 단백질 설계 모델의 훈련은 손실 함수의 기울기 최소화에 의존합니다. Adam 옵티마이저는 1차, 2차 모멘트 추정으로 학습률을 적응적으로 조절합니다.",
+    en: "Training all deep-learning protein design models relies on gradient minimization of loss functions. The Adam optimizer uses first- and second-moment estimates to adaptively adjust the learning rate."
+  },
+  "s5-2": { cn: "扩散过程的微分方程 (SDE)", kr: "확산 과정의 미분방정식 (SDE)", en: "Stochastic Differential Equations of Diffusion" },
+  "s5-2-p1": {
+    cn: "RFdiffusion 的正向过程可表示为随机微分方程 (SDE)。从数据分布 p_data 到高斯噪声的连续路径。反向采样对应逆时间 SDE。",
+    kr: "RFdiffusion의 정방향 과정은 확률 미분방정식 (SDE)으로 표현됩니다. 데이터 분포 p_data에서 가우시안 노이즈로의 연속 경로이며, 역방향 샘플링은 역시간 SDE에 해당합니다.",
+    en: "RFdiffusion's forward process can be expressed as a stochastic differential equation (SDE) — a continuous path from data distribution p_data to Gaussian noise. Reverse sampling corresponds to a reverse-time SDE."
+  },
+  "s5-2-callout": {
+    cn: "Score function ∇_x log p_t(x) 是扩散模型的核心 —— 训练神经网络估计此函数。",
+    kr: "Score function ∇_x log p_t(x)는 확산 모델의 핵심 — 신경망을 훈련하여 이 함수를 추정합니다.",
+    en: "The score function ∇_x log p_t(x) is the core of diffusion models — a neural network is trained to estimate it."
+  },
+  "s5-3": { cn: "链式法则与反向传播", kr: "연쇄 법칙과 역전파", en: "Chain Rule & Backpropagation" },
+  "s5-3-p1": {
+    cn: "反向传播 (backpropagation) 是微积分链式法则的直接应用。在 ProteinMPNN 中，通过自回归序列生成的每一步，梯度沿计算图反向传播更新权重。",
+    kr: "역전파 (backpropagation)는 미적분 연쇄 법칙의 직접적 응용입니다. ProteinMPNN에서 자기회귀 서열 생성의 각 단계마다 기울기가 계산 그래프를 따라 역으로 전파되어 가중치를 업데이트합니다.",
+    en: "Backpropagation is a direct application of the calculus chain rule. In ProteinMPNN, at each step of autoregressive sequence generation, gradients propagate backward through the computation graph to update weights."
+  },
+  "s5-4": { cn: "BindCraft: AF2 loss 的梯度回传", kr: "BindCraft: AF2 loss의 기울기 역전파", en: "BindCraft: Gradient Backprop through AF2 Loss" },
+  "s5-4-p1": {
+    cn: "BindCraft 将 AlphaFold2 的置信度指标 (pAE, pLDDT) 作为可微分的目标函数。通过 softmax 温度退火策略直接在序列空间中梯度优化，跳过骨架生成步骤。",
+    kr: "BindCraft는 AlphaFold2의 신뢰도 지표 (pAE, pLDDT)를 미분 가능한 목적 함수로 사용합니다. Softmax 온도 어닐링 전략으로 서열 공간에서 직접 기울기 최적화하여, 골격 생성 단계를 건너뜁니다.",
+    en: "BindCraft uses AlphaFold2's confidence metrics (pAE, pLDDT) as differentiable objectives. Through softmax temperature annealing, it gradient-optimizes directly in sequence space, skipping backbone generation."
+  },
+
+  "ch6-title": { cn: "概率统计 × 序列生成与评估", kr: "확률통계 × 서열 생성과 평가", en: "Probability & Statistics × Sequence Generation" },
+  "ch6-desc": { cn: "贝叶斯推断、采样策略、评估指标", kr: "베이지안 추론, 샘플링 전략, 평가 지표", en: "Bayesian inference, sampling strategies, evaluation metrics" },
+  "s6-1": { cn: "自回归序列概率建模", kr: "자기회귀 서열 확률 모델링", en: "Autoregressive Sequence Probability Modeling" },
+  "s6-1-p1": {
+    cn: "ProteinMPNN 和 ESM-IF 将序列设计建模为自回归条件概率。给定骨架结构 X，每个位置的氨基酸概率取决于已生成的前序残基。",
+    kr: "ProteinMPNN과 ESM-IF는 서열 설계를 자기회귀 조건부 확률로 모델링합니다. 골격 구조 X가 주어지면, 각 위치의 아미노산 확률은 이미 생성된 앞선 잔기에 의존합니다.",
+    en: "ProteinMPNN and ESM-IF model sequence design as autoregressive conditional probabilities. Given backbone X, each position's amino acid probability depends on previously generated residues."
+  },
+  "s6-2": { cn: "DDPM 的正向/反向概率", kr: "DDPM의 정방향/역방향 확률", en: "DDPM Forward/Reverse Probabilities" },
+  "s6-2-p1": {
+    cn: "去噪扩散概率模型 (DDPM) 的正向过程是预定的马尔科夫链，反向过程由参数化的高斯转移核建模。ELBO (证据下界) 提供了训练目标。",
+    kr: "DDPM의 정방향 과정은 사전 정의된 마르코프 체인이며, 역방향 과정은 매개변수화된 가우시안 전이 커널로 모델링됩니다. ELBO (증거 하한)가 훈련 목표를 제공합니다.",
+    en: "DDPM's forward process is a predefined Markov chain; the reverse process is modeled by parameterized Gaussian transition kernels. The ELBO (evidence lower bound) provides the training objective."
+  },
+  "s6-3": { cn: "采样策略：Temperature 与 Top-k", kr: "샘플링 전략: Temperature와 Top-k", en: "Sampling: Temperature & Top-k" },
+  "s6-3-p1": {
+    cn: "在 ProteinMPNN 中，采样温度 T 控制序列多样性。T→0 趋于贪婪选择（最高概率），T→∞ 趋于均匀随机。Top-k 采样限制候选集大小。",
+    kr: "ProteinMPNN에서 샘플링 온도 T는 서열 다양성을 제어합니다. T→0이면 탐욕적 선택 (최고 확률), T→∞이면 균일 무작위에 가까워집니다. Top-k 샘플링은 후보 집합 크기를 제한합니다.",
+    en: "In ProteinMPNN, sampling temperature T controls sequence diversity. T→0 approaches greedy selection (highest probability), T→∞ approaches uniform random. Top-k sampling limits candidate set size."
+  },
+  "s6-4": { cn: "评估指标的统计学基础", kr: "평가 지표의 통계학적 기초", en: "Statistical Foundations of Evaluation Metrics" },
+  "s6-4-iptm": { cn: "界面 pTM score — 基于残基距离误差分布的置信度估计", kr: "인터페이스 pTM 스코어 — 잔기 거리 오차 분포 기반 신뢰도 추정", en: "Interface pTM score — confidence estimate based on residue distance error distribution" },
+  "s6-4-pae": { cn: "Predicted Aligned Error — 位置 i 相对于 j 的预测误差矩阵", kr: "Predicted Aligned Error — 위치 i의 j 기준 예측 오차 행렬", en: "Predicted Aligned Error — predicted error matrix of position i relative to j" },
+  "s6-4-plddt": { cn: "Per-residue confidence — 对局部距离差异的分箱概率分布", kr: "잔기별 신뢰도 — 국소 거리 차이의 빈 확률 분포", en: "Per-residue confidence — binned probability distribution of local distance differences" },
+  "s6-4-rr": { cn: "序列恢复率 — 设计序列与天然序列的氨基酸一致比例", kr: "서열 복구율 — 설계 서열과 천연 서열의 아미노산 일치 비율", en: "Recovery rate — fraction of amino acids matching between designed and native sequences" },
+
+  "ch7-title": { cn: "RFdiffusion 中的数学", kr: "RFdiffusion의 수학", en: "Mathematics in RFdiffusion" },
+  "ch7-desc": { cn: "扩散模型在蛋白质结构空间上的数学体系", kr: "단백질 구조 공간에서 확산 모델의 수학 체계", en: "Mathematical framework of diffusion models on protein structure space" },
+  "s7-1": { cn: "SE(3) 上的噪声调度", kr: "SE(3) 위의 노이즈 스케줄링", en: "Noise Scheduling on SE(3)" },
+  "s7-1-p1": {
+    cn: "蛋白质骨架是 SE(3) 帧 (rotation + translation) 的序列。RFdiffusion 在旋转分量上施加 IGSO(3) 分布的噪声 (Isotropic Gaussian on SO(3))，在平移分量上施加标准高斯噪声。",
+    kr: "단백질 골격은 SE(3) 프레임 (회전 + 이동)의 시퀀스입니다. RFdiffusion은 회전 성분에 IGSO(3) 분포 노이즈를, 이동 성분에 표준 가우시안 노이즈를 적용합니다.",
+    en: "Protein backbones are sequences of SE(3) frames (rotation + translation). RFdiffusion applies IGSO(3) noise to rotational components and standard Gaussian noise to translational components."
+  },
+  "s7-2": { cn: "去噪网络与损失函数", kr: "잡음 제거 네트워크와 손실 함수", en: "Denoising Network & Loss Function" },
+  "s7-2-p1": {
+    cn: "去噪网络以加噪结构和时间步 t 为输入，预测干净结构。损失函数是预测帧与真实帧在 SE(3) 上的距离。",
+    kr: "잡음 제거 네트워크는 노이즈가 추가된 구조와 시간 단계 t를 입력으로 받아 깨끗한 구조를 예측합니다. 손실 함수는 예측 프레임과 실제 프레임 사이의 SE(3) 거리입니다.",
+    en: "The denoising network takes noised structure and timestep t as input to predict clean structure. The loss function is the SE(3) distance between predicted and ground-truth frames."
+  },
+  "s7-3": { cn: "条件生成：表位引导扩散", kr: "조건부 생성: 에피토프 유도 확산", en: "Conditional Generation: Epitope-guided Diffusion" },
+  "s7-3-p1": {
+    cn: "在纳米抗体设计中，靶标蛋白的表位残基作为条件信息传入去噪网络。这实现了“在指定表位上生成结合骨架”。数学上是条件概率 p(backbone | epitope)。",
+    kr: "나노바디 설계에서 표적 단백질의 에피토프 잔기가 조건 정보로 잡음 제거 네트워크에 전달됩니다. 이를 통해 '지정 에피토프 위에 결합 골격 생성'이 구현됩니다. 수학적으로는 조건부 확률 p(backbone | epitope)입니다.",
+    en: "In nanobody design, the target protein's epitope residues are passed as conditioning information into the denoising network. This enables 'generating binding backbones on a specified epitope.' Mathematically: conditional probability p(backbone | epitope)."
+  },
+  "s7-3-callout": {
+    cn: "条件扩散 = classifier-free guidance 或 inpainting 策略，将表位坐标作为固定的“已知”区域。",
+    kr: "조건부 확산 = classifier-free guidance 또는 인페인팅 전략, 에피토프 좌표를 고정된 '알려진' 영역으로 설정.",
+    en: "Conditional diffusion = classifier-free guidance or inpainting strategy, treating epitope coordinates as fixed 'known' regions."
+  },
+
+  "ch8-title": { cn: "ProteinMPNN 中的数学", kr: "ProteinMPNN의 수학", en: "Mathematics in ProteinMPNN" },
+  "ch8-desc": { cn: "消息传递网络的图运算与序列似然", kr: "메시지 패싱 네트워크의 그래프 연산과 서열 우도", en: "Graph operations and sequence likelihood in message passing networks" },
+  "s8-1": { cn: "蛋白质图编码", kr: "단백질 그래프 인코딩", en: "Protein Graph Encoding" },
+  "s8-1-p1": {
+    cn: "ProteinMPNN 将蛋白质骨架表示为稀疏图 G = (V, E)。节点 = Cα 原子，边 = k 近邻 (通常 k=30)。节点特征包含二面角 (φ, ψ, ω)，边特征包含距离和方向向量。",
+    kr: "ProteinMPNN은 단백질 골격을 희소 그래프 G = (V, E)로 표현합니다. 노드 = Cα 원자, 엣지 = k 최근접 이웃 (보통 k=30). 노드 특징은 이면각 (φ, ψ, ω), 엣지 특징은 거리와 방향 벡터를 포함합니다.",
+    en: "ProteinMPNN represents protein backbones as sparse graphs G = (V, E). Nodes = Cα atoms, edges = k-nearest neighbors (typically k=30). Node features include dihedral angles (φ, ψ, ω); edge features include distance and direction vectors."
+  },
+  "s8-2": { cn: "消息传递层", kr: "메시지 패싱 레이어", en: "Message Passing Layers" },
+  "s8-2-p1": {
+    cn: "每层消息传递由三步组成：(1) 计算边消息，(2) 聚合邻居消息，(3) 更新节点表示。3 层堆叠捕获约 90Å 半径内的结构上下文。",
+    kr: "각 메시지 패싱 레이어는 세 단계로 구성됩니다: (1) 엣지 메시지 계산, (2) 이웃 메시지 집계, (3) 노드 표현 업데이트. 3층 스택으로 약 90Å 반경 내의 구조 컨텍스트를 포착합니다.",
+    en: "Each message passing layer has three steps: (1) compute edge messages, (2) aggregate neighbor messages, (3) update node representations. 3 stacked layers capture structural context within ~90Å radius."
+  },
+  "s8-3": { cn: "自回归解码与交叉熵", kr: "자기회귀 디코딩과 교차 엔트로피", en: "Autoregressive Decoding & Cross-Entropy" },
+  "s8-3-p1": {
+    cn: "解码阶段按随机排列顺序逐位生成氨基酸。每步的 20 类概率通过 softmax 输出，训练目标为交叉熵损失。",
+    kr: "디코딩 단계에서 무작위 순열 순서로 아미노산을 위치별로 생성합니다. 각 단계에서 20가지 아미노산 확률이 softmax로 출력되며, 훈련 목표는 교차 엔트로피 손실입니다.",
+    en: "Decoding generates amino acids position-by-position in random permutation order. Each step outputs 20-class probabilities via softmax; the training objective is cross-entropy loss."
+  },
+
+  "ch9-title": { cn: "结构验证中的数学 (AF3 / Boltz-2)", kr: "구조 검증의 수학 (AF3 / Boltz-2)", en: "Math in Structure Validation (AF3 / Boltz-2)" },
+  "ch9-desc": { cn: "共折叠预测中的 pairwise 表示与置信度估计", kr: "공동 폴딩 예측에서의 pairwise 표현과 신뢰도 추정", en: "Pairwise representations and confidence estimation in co-folding prediction" },
+  "s9-1": { cn: "Evoformer / Pairformer", kr: "Evoformer / Pairformer", en: "Evoformer / Pairformer" },
+  "s9-1-p1": {
+    cn: "AF3 使用 Pairformer (AF2 为 Evoformer) 处理 MSA 和 pair 表示。核心运算：行/列注意力在 pair representation z ∈ ℝ^{N×N×c} 上的三角更新 (triangle update)，数学上等价于矩阵乘积的特殊形式。",
+    kr: "AF3는 Pairformer (AF2는 Evoformer)를 사용하여 MSA와 pair 표현을 처리합니다. 핵심 연산: pair representation z ∈ ℝ^{N×N×c}에 대한 행/열 어텐션의 삼각 업데이트 (triangle update), 수학적으로 행렬 곱의 특수한 형태입니다.",
+    en: "AF3 uses Pairformer (AF2 used Evoformer) to process MSA and pair representations. Core operation: triangle updates on pair representation z ∈ ℝ^{N×N×c} via row/column attention — mathematically a special form of matrix multiplication."
+  },
+  "s9-2": { cn: "AF3 扩散模块", kr: "AF3 확산 모듈", en: "AF3 Diffusion Module" },
+  "s9-2-p1": {
+    cn: "AF3 用扩散模型替代了 AF2 的 Structure Module。在原子坐标空间直接扩散，支持蛋白质、核酸、小分子和离子的联合建模。",
+    kr: "AF3는 AF2의 Structure Module을 확산 모델로 대체했습니다. 원자 좌표 공간에서 직접 확산하여, 단백질, 핵산, 소분자, 이온의 공동 모델링을 지원합니다.",
+    en: "AF3 replaces AF2's Structure Module with a diffusion model. It diffuses directly in atomic coordinate space, supporting joint modeling of proteins, nucleic acids, small molecules, and ions."
+  },
+  "s9-3": { cn: "ipTM 与 pAE 的概率解释", kr: "ipTM과 pAE의 확률적 해석", en: "Probabilistic Interpretation of ipTM & pAE" },
+  "s9-3-p1": {
+    cn: "ipTM (interface predicted TM-score) 由链间残基对的距离误差分布计算得出。pAE 矩阵的每个元素 pAE[i,j] 表示“残基 i 在以残基 j 为参考对齐后的预测位置误差”的概率分布，取 argmax bin 作为预测值。",
+    kr: "ipTM (인터페이스 predicted TM-score)는 체인 간 잔기 쌍의 거리 오차 분포에서 계산됩니다. pAE 행렬의 각 요소 pAE[i,j]는 '잔기 j를 기준으로 정렬했을 때 잔기 i의 예측 위치 오차'의 확률 분포이며, argmax bin을 예측값으로 사용합니다.",
+    en: "ipTM (interface predicted TM-score) is computed from inter-chain residue pair distance error distributions. Each pAE matrix element pAE[i,j] represents the probability distribution of 'predicted positional error of residue i when aligned to residue j,' taking the argmax bin as the prediction."
+  },
+
+  "ch10-title": { cn: "实战：RFantibody 管线数学拆解", kr: "실전: RFantibody 파이프라인 수학 분해", en: "Practice: RFantibody Pipeline Math Walkthrough" },
+  "ch10-desc": { cn: "从表位选择到 hit 序列的端到端数学流程", kr: "에피토프 선택에서 hit 서열까지 엔드투엔드 수학 흐름", en: "End-to-end math flow from epitope selection to hit sequences" },
+  "s10-1": { cn: "Step 1: 表位定义 → 条件编码", kr: "Step 1: 에피토프 정의 → 조건 인코딩", en: "Step 1: Epitope Definition → Conditional Encoding" },
+  "s10-1-p1": {
+    cn: "选取靶蛋白表位残基 (hotspot residues)，将其坐标作为 SE(3) 条件编码传入 RFdiffusion。数学：条件概率 p(CDR_backbone | epitope_coords)。",
+    kr: "표적 단백질의 에피토프 잔기 (핫스팟 잔기)를 선택하여 좌표를 SE(3) 조건 인코딩으로 RFdiffusion에 전달합니다. 수학: 조건부 확률 p(CDR_backbone | epitope_coords).",
+    en: "Select target protein epitope residues (hotspot residues) and pass their coordinates as SE(3) conditional encoding to RFdiffusion. Math: conditional probability p(CDR_backbone | epitope_coords)."
+  },
+  "s10-2": { cn: "Step 2: CDR 骨架扩散生成", kr: "Step 2: CDR 골격 확산 생성", en: "Step 2: CDR Backbone Diffusion Generation" },
+  "s10-2-p1": {
+    cn: "RFantibody 在 SE(3) 上执行 T 步反向扩散，从高斯噪声中采样 CDR loop 骨架。Framework 区域保持固定。关键超参：扩散步数 T、噪声调度 β_t。",
+    kr: "RFantibody는 SE(3) 위에서 T 단계 역방향 확산을 실행하여 가우시안 노이즈에서 CDR 루프 골격을 샘플링합니다. 프레임워크 영역은 고정됩니다. 핵심 하이퍼파라미터: 확산 단계 수 T, 노이즈 스케줄 β_t.",
+    en: "RFantibody executes T-step reverse diffusion on SE(3), sampling CDR loop backbones from Gaussian noise. Framework regions remain fixed. Key hyperparameters: diffusion steps T, noise schedule β_t."
+  },
+  "s10-3": { cn: "Step 3: MPNN 序列设计", kr: "Step 3: MPNN 서열 설계", en: "Step 3: MPNN Sequence Design" },
+  "s10-3-p1": {
+    cn: "ProteinMPNN 接收生成的骨架结构，通过 GNN 编码 + 自回归解码输出 CDR 序列。采样温度 T=0.1 (保守) ~ 0.5 (多样)，通常生成 100–1000 条候选序列。",
+    kr: "ProteinMPNN이 생성된 골격 구조를 입력받아, GNN 인코딩 + 자기회귀 디코딩으로 CDR 서열을 출력합니다. 샘플링 온도 T=0.1 (보수적) ~ 0.5 (다양), 보통 100–1000개 후보 서열을 생성합니다.",
+    en: "ProteinMPNN receives the generated backbone, outputs CDR sequences via GNN encoding + autoregressive decoding. Sampling temperature T=0.1 (conservative) to 0.5 (diverse); typically generates 100–1000 candidate sequences."
+  },
+  "s10-4": { cn: "Step 4: AF3/Boltz-2 结构验证", kr: "Step 4: AF3/Boltz-2 구조 검증", en: "Step 4: AF3/Boltz-2 Structure Validation" },
+  "s10-4-p1": {
+    cn: "将设计序列与靶标序列一起输入 AF3 或 Boltz-2 进行共折叠预测。过滤标准：ipTM > 0.7, pAE_interaction < 10, CDR RMSD < 2Å (与设计骨架对比)。",
+    kr: "설계 서열과 표적 서열을 함께 AF3 또는 Boltz-2에 입력하여 공동 폴딩 예측을 수행합니다. 필터링 기준: ipTM > 0.7, pAE_interaction < 10, CDR RMSD < 2Å (설계 골격 대비).",
+    en: "Input designed sequences together with target sequences into AF3 or Boltz-2 for co-folding prediction. Filter criteria: ipTM > 0.7, pAE_interaction < 10, CDR RMSD < 2Å (vs. designed backbone)."
+  },
+  "s10-5": { cn: "Step 5: 可开发性过滤 → 候选排序", kr: "Step 5: 개발 가능성 필터링 → 후보 순위", en: "Step 5: Developability Filtering → Candidate Ranking" },
+  "s10-5-p1": {
+    cn: "通过通过的候选进入可开发性评估：聚集倾向、溶解度 (CamSol)、人源化评分 (Hu-mAb)、TAP 5 指标。最终按综合评分排序输出 Top-N 进入实验验证。",
+    kr: "통과한 후보는 개발 가능성 평가에 진입합니다: 응집 경향, 용해도 (CamSol), 인간화 스코어 (Hu-mAb), TAP 5가지 지표. 최종 종합 점수로 순위를 매겨 Top-N을 실험 검증으로 보냅니다.",
+    en: "Passing candidates enter developability assessment: aggregation propensity, solubility (CamSol), humanization score (Hu-mAb), TAP 5 metrics. Final composite scoring ranks Top-N for experimental validation."
+  },
+  "s10-5-callout": {
+    cn: "NabTriad 平台集成了这一完整管线：NabPanning (序列亲和力) → NabDock (AF3/MD 结构) → NabSafe (可开发性/免疫原性)",
+    kr: "NabTriad 플랫폼이 이 전체 파이프라인을 통합합니다: NabPanning (서열 친화도) → NabDock (AF3/MD 구조) → NabSafe (개발 가능성/면역원성)",
+    en: "NabTriad platform integrates this full pipeline: NabPanning (sequence affinity) → NabDock (AF3/MD structure) → NabSafe (developability/immunogenicity)"
+  },
+
+  "footer": {
+    cn: "© 2026 NbMath — 纳米抗体 De Novo 设计 × 数学基础 · 三语交互参考手册",
+    kr: "© 2026 NbMath — 나노바디 De Novo 설계 × 수학적 기초 · 삼개국어 인터랙티브 레퍼런스",
+    en: "© 2026 NbMath — De Novo Nanobody Design × Mathematical Foundations · Trilingual Interactive Reference"
+  }
+};
+
+// ── LANG SWITCH ──
+let currentLang = "cn";
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll(".lang-btn").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
+  document.querySelectorAll("[data-i]").forEach(el => {
+    const key = el.getAttribute("data-i");
+    if (T[key] && T[key][lang]) {
+      el.innerHTML = T[key][lang].replace(/\n/g, "<br>");
+    }
+  });
+}
+
+document.querySelectorAll(".lang-btn").forEach(btn => {
+  btn.addEventListener("click", () => setLang(btn.dataset.lang));
+});
+
+// ── SECTION TOGGLES ──
+document.querySelectorAll(".section-toggle").forEach(btn => {
+  btn.addEventListener("click", () => {
+    btn.closest(".section").classList.toggle("open");
+  });
+});
+
+// init
+setLang("cn");
+</script>
+</body>
+</html>
